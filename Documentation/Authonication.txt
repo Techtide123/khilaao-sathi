@@ -1,0 +1,8 @@
+Sign Up Page:
+
+In the Sign Up page i used the architecture that the user create an account with Mail and password .
+also rest 
+
+
+
+

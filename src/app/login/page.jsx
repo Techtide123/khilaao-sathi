@@ -25,7 +25,7 @@ export default function LoginPage() {
     try {
       await loginWithEmail(email, password);
       toast.success('Login successful!');
-      router.push("/");
+      router.push("/dashboard");
     } catch (err) {
       // Firebase auth error codes
       switch (err.code) {
@@ -69,7 +69,7 @@ export default function LoginPage() {
           alt="App Logo"
           width={120}
           height={120}
-          style={{ width: '60%', height: 'auto' , margin: 'auto' ,marginTop: '-20px'}}
+          style={{ width: '90%', height: 'auto' , margin: 'auto' ,marginTop: '-20px'}}
           priority
           className=""
         />
@@ -111,9 +111,11 @@ export default function LoginPage() {
           />
         </div>
         <div className="mb-4 ">
+          <Link href="/reset" rel="noopener noreferrer">
           <label htmlFor="email" className="block text-sm  text-gray-700 mb-1 font-semibold" style={{ fontSize: '12px', color: 'gray', textAlign: 'right', marginTop: '-10px' }}>
             Forgot Password?
           </label>
+          </Link>
         </div>
         <button
           type="submit"
