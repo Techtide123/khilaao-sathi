@@ -1,76 +1,38 @@
-import React, { useEffect, useState } from 'react';
+'use client';
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 
-import { FiSearch } from 'react-icons/fi';
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl:
+    'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
+  iconUrl:
+    'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+  shadowUrl:
+    'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+});
 
-const Map = () => {
-    const [currentPosition, setCurrentPosition] = useState(null);
-    const [error, setError] = useState(null);
+const MapClient = ({ posts }) => {
+  const defaultCenter = [20.295, 85.818];
 
-    useEffect(() => {
-        if (!navigator.geolocation) {
-            setError('Geolocation not supported');
-            return;
-        }
-        navigator.geolocation.getCurrentPosition(
-            (position) => {
-                setCurrentPosition({
-                    lat: position.coords.latitude,
-                    lng: position.coords.longitude,
-                });
-            },
-            (err) => {
-                setError(err.message);
-            }
-        );
-    }, []);
-    return (
-        <div className="flex flex-col h-[calc(100vh-120px)] bg-white">
-            {/* Search Bar */}
-            <div className="p-4">
-                <div className="flex items-center bg-gray-100 rounded-full px-4 py-2 shadow-sm">
-                    <FiSearch className="text-gray-500 mr-2" />
-                    <input
-                        type="text"
-                        placeholder="Search food nearby..."
-                        className="bg-transparent w-full outline-none text-sm text-gray-800"
-                    />
-                </div>
-            </div>
+  return (
+    <MapContainer center={defaultCenter} zoom={8} scrollWheelZoom={false} className="h-[200px] w-full rounded-lg z-0">
+      <TileLayer
+        attribution="&copy; OpenStreetMap contributors"
+        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+      />
+      {posts.map((post) => (
+        <Marker key={post._id} position={[post.lat, post.lng]}>
+          <Popup>
+            <strong>{post.title}</strong><br />
+            {post.description}<br />
+            📞 {post.contact}
+          </Popup>
+        </Marker>
+      ))}
+    </MapContainer>
+  );
+};
 
-            {/* Map Section */}
-            <div className="relative flex-1 overflow-hidden rounded-t-xl shadow-inner mx-4 mb-4 border border-gray-100">
-                {/* Placeholder Map Background */}
-                <div className="absolute inset-0 bg-gradient-to-br from-[#fff7e8] to-[#fef4db] flex items-center justify-center text-[#b6985a] text-lg font-semibold tracking-wide">
-                    Map View (Your map integration here)
-                </div>
-
-                {/* Show current location pin if available */}
-                {currentPosition && (
-                    <div
-                        className="absolute z-10"
-                        style={{
-                            // For example: center pin horizontally & vertically inside div (fake positioning)
-                            top: '50%',
-                            left: '50%',
-                            transform: 'translate(-50%, -50%)',
-                        }}
-                    >
-                        <div className="bg-[#b6985a] text-white px-2 py-1 rounded-md shadow-md text-xs flex items-center space-x-1">
-                            <span>📍</span>
-                            <span>Your Location</span>
-                        </div>
-                    </div>
-                )}
-
-                {/* Show error if geolocation fails */}
-                {error && (
-                    <div className="absolute bottom-2 left-2 text-red-500 text-xs bg-white px-2 py-1 rounded shadow">
-                        {error}
-                    </div>
-                )}
-            </div>
-        </div>
-    )
-}
-
-export default Map
+export default MapClient;

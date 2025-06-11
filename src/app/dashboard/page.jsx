@@ -1,38 +1,66 @@
 'use client';
-import { useEffect } from 'react';
-import { useAuth } from '@/lib/authContext';
 import { useRouter } from 'next/navigation';
-import { toast } from 'react-toastify';
-import { FiLogOut } from 'react-icons/fi';
 import { FaUser, FaHome, FaBell, FaCog } from 'react-icons/fa';
-import { useState } from 'react';
-import Map from '@/components/dashhome/Map';
+import { useState, useEffect } from 'react';
+import FoodList from '@/components/dashhome/FoodList';
+import Navbar from '@/components/Header/Navbar';
+import Profile from '@/components/Myprofile/Profile';
+import dynamic from 'next/dynamic';
+
+
+
+
+const MapClient = dynamic(() => import('@/components/dashhome/Map'), {
+    ssr: false,
+});
+
+
 
 export default function DashboardPage() {
-    const { user, loading, logout } = useAuth();
+
     const [activeTab, setActiveTab] = useState('home');
+    const [posts, setPosts] = useState([]);
 
     const router = useRouter();
 
-    useEffect(() => {
-        if (!loading && !user) {
-            router.push('/login');
-        }
-    }, [loading, user]);
 
-    const handleLogout = async () => {
-        await logout();
-        toast.success("Logged out successfully!");
-        router.push('/login');
-    };
+    // Fecthcing the Lat anf Long from the db
+    useEffect(() => {
+        fetch('/api/getfood?filter=all')
+            .then((res) => res.json())
+            .then((data) => {
+                if (Array.isArray(data.foods)) {
+                    const validPosts = data.foods.filter(
+                        (post) => post.lat !== undefined && post.lng !== undefined
+                    );
+                    setPosts(validPosts); // Set filtered posts with valid lat/lng
+                    console.log("Valid posts with coordinates:", validPosts);
+                } else {
+                    console.error("Expected an array in data.foods but got:", data.foods);
+                }
+            })
+            .catch((err) => console.error('Error fetching posts:', err));
+    }, []);
+
 
 
     const renderTabContent = () => {
         switch (activeTab) {
             case 'home':
-                return (<Map />);
+                return (
+                    <>
+                        {/* <Map /> */}
+                        <MapClient posts={posts} />
+
+                        {/* Food List */}
+                        <FoodList />
+                    </>
+                );
             case 'profile':
-                return <div><h2 className="text-xl font-bold">👤 Profile Content</h2></div>;
+                return (<>
+                    {/* <Profile Info /> */}
+                    <Profile />
+                </>);
             case 'alerts':
                 return <div><h2 className="text-xl font-bold">🔔 Alerts</h2></div>;
             case 'settings':
@@ -42,38 +70,11 @@ export default function DashboardPage() {
         }
     };
 
-    if (loading) return <p className="text-center mt-10">Loading...</p>;
 
     return (
         <div className="min-h-screen flex flex-col justify-between">
             {/* Header */}
-            <header className="flex justify-between items-center px-4 py-3 bg-white shadow-md border-b border-gray-100 rounded-b-xl">
-                <div className="flex flex-col text-sm text-gray-800 leading-tight">
-                    <span className="text-xs text-gray-500">Hey There 👋</span>
-                    <span className="text-[13px] font-semibold text-[#b6985a] truncate max-w-[8rem]">
-                        {user?.displayName || user?.email}
-                    </span>
-                </div>
-
-                <div className="flex items-center gap-3">
-                    {user && (
-                        <div className="w-10 h-10 rounded-full shadow-md border-2 border-[#b6985a] overflow-hidden">
-                            <img
-                                src={user.photoURL || "/user.png"}
-                                alt="profile"
-                                className="w-full h-full object-cover"
-                            />
-                        </div>
-                    )}
-                    <button
-                        onClick={handleLogout}
-                        className="p-2 rounded-full shadow hover:shadow-lg transition-all duration-300 bg-[#fef9f3] border border-[#b6985a] text-[#b6985a] hover:bg-[#fff4dc]"
-                        title="Logout"
-                    >
-                        <FiLogOut size={18} />
-                    </button>
-                </div>
-            </header>
+            <Navbar />
 
             {/* Main Content (Dynamic) */}
             <main className="flex-1 p-4">
@@ -101,6 +102,10 @@ export default function DashboardPage() {
                     </button>
                 </div>
             </nav>
+
+
+
+
         </div>
     );
 }

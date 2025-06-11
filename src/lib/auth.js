@@ -3,7 +3,7 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signInWithPopup,
-  sendPasswordResetEmail 
+  sendPasswordResetEmail
 } from "firebase/auth";
 import { auth, googleProvider } from "./firebaseConfig";
 

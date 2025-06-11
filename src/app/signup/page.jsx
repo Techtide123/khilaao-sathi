@@ -30,7 +30,6 @@ export default function SignupPage() {
     const handleSignup = async (e) => {
         e.preventDefault();
 
-        // 1. Check if all fields are filled
         if (!form.name || !form.email || !form.password || !form.phone) {
             toast.error('Please fill all the fields');
             return;
@@ -39,20 +38,39 @@ export default function SignupPage() {
         setLoading(true);
 
         try {
-            // 2. Try to create user
-            await signupWithEmail(form.email, form.password);
+            // Step 1: Create user in Firebase Auth
+            const userCredential = await signupWithEmail(form.email, form.password);
+            const user = userCredential.user;
+
+            // Step 2: Store additional info in MongoDB via API
+            const res = await fetch('/api/signup', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    uid: user.uid,
+                    name: form.name,
+                    email: form.email,
+                    password: form.password,
+                    phone: form.phone,
+                }),
+            });
+
+            const data = await res.json();
+            if (!res.ok) {
+                throw new Error(data.message || 'Failed to store user data');
+            }
+
             toast.success('Account created successfully!');
-            // Redirect to dashboard or wherever
             router.push('/login');
         } catch (error) {
-            // 3. If user already exists, show error and redirect to login
             if (error.code === 'auth/email-already-in-use') {
                 toast.error('Email already registered. Redirecting to login...');
                 setTimeout(() => {
                     router.push('/login');
                 }, 3000);
             } else {
-                // Other errors
                 toast.error(error.message);
             }
         } finally {
@@ -61,35 +79,35 @@ export default function SignupPage() {
     };
 
 
-const handleGoogleSignup = async () => {
-  try {
-    const result = await loginWithGoogle();
-    const user = result.user;
+    const handleGoogleSignup = async () => {
+      try {
+        const result = await loginWithGoogle();
+        const user = result.user;
 
-    // Check if user already exists in Firestore
-    const userRef = doc(db, "users", user.uid);
-    await new Promise((res) => setTimeout(res, 500));
+        // Check if user already exists in Firestore
+        const userRef = doc(db, "users", user.uid);
+        await new Promise((res) => setTimeout(res, 500));
 
-    const userSnap = await getDoc(userRef);
+        const userSnap = await getDoc(userRef);
 
-    if (!userSnap.exists()) {
-      // New user – save info
-      await setDoc(userRef, {
-        name: user.displayName,
-        email: user.email,
-        uid: user.uid,
-        createdAt: new Date().toISOString()
-      });
-      toast.success("Google signup successful!");
-    } else {
-      toast.info("Welcome back! Logging you in...");
-    }
+        if (!userSnap.exists()) {
+          // New user – save info
+          await setDoc(userRef, {
+            name: user.displayName,
+            email: user.email,
+            uid: user.uid,
+            createdAt: new Date().toISOString()
+          });
+          toast.success("Google signup successful!");
+        } else {
+          toast.info("Welcome back! Logging you in...");
+        }
 
-    router.push("/"); // Or redirect based on your app flow
-  } catch (err) {
-    toast.error("Google signup failed: " + err.message);
-  }
-};
+        router.push("/"); // Or redirect based on your app flow
+      } catch (err) {
+        toast.error("Google signup failed: " + err.message);
+      }
+    };
 
     return (
 
@@ -100,7 +118,7 @@ const handleGoogleSignup = async () => {
                     alt="App Logo"
                     width={120}
                     height={120}
-                        style={{ width: '60%', height: 'auto' , margin: 'auto' ,marginTop: '-20px'}}
+                    style={{ width: '60%', height: 'auto', margin: 'auto', marginTop: '-20px' }}
                     priority
                     className=""
                 />
@@ -168,14 +186,14 @@ const handleGoogleSignup = async () => {
 
                 <div className="my-6 text-center text-sm text-gray-500">— or continue with —</div>
 
-<button
-  onClick={handleGoogleSignup}
-  className="w-full flex items-center justify-center gap-3 bg-white border border-gray-300 hover:bg-gray-100 
+                <button
+                    onClick={handleGoogleSignup}
+                    className="w-full flex items-center justify-center gap-3 bg-white border border-gray-300 hover:bg-gray-100 
     text-gray-800 font-medium py-3 rounded-xl shadow-md transition-all duration-300"
->
-  <FaGoogle className="text-red-500 text-xl" />
-  Continue with Google
-</button>
+                >
+                    <FaGoogle className="text-red-500 text-xl" />
+                    Continue with Google
+                </button>
 
             </div>
 
