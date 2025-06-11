@@ -5,11 +5,4 @@ also rest
 
 
 
-
-ofgdSg0FeknxHm2j - - techtidetechtide || Mongodb password
-
-mongodb+srv://techtidetechtide:ofgdSg0FeknxHm2j@cluster0.ucdtphh.mongodb.net/khilaosathi?retryWrites=true&w=majority&appName=Cluster0
-
-
-
-8b4c9aa846884b49b26cf5a36ba0496c - -Geocoding API Plan
+scscd
