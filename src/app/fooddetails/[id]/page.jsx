@@ -6,6 +6,7 @@ import { FaWhatsapp, FaMapMarkerAlt } from 'react-icons/fa';
 import { MdAccessTime } from 'react-icons/md';
 import { PiCheckCircleBold } from 'react-icons/pi';
 import Navbar from '@/components/Header/Navbar';
+import { getAuth } from "firebase/auth";
 
 // Swiper Imports
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -58,6 +59,55 @@ export default function FoodDetailsPage() {
     "https://images.unsplash.com/photo-1600891964599-f61ba0e24092?w=800",
     "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800"
   ];
+
+  // claim Food Status function
+  const handleClaimFood = async () => {
+    const auth = getAuth();
+    const user = auth.currentUser;
+
+    if (!user) {
+      alert("You must be logged in to claim food.");
+      return;
+    }
+
+    if (food.status === 'active') {
+      const confirmClaim = window.confirm("Are you sure you want to claim this food?");
+      if (!confirmClaim) return;
+
+      try {
+        const res = await fetch('/api/claimfood', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            foodId: food._id,
+            uid: user.uid
+          })
+        });
+
+        const data = await res.json();
+        alert(data.message);
+
+        // Optional: reload page or update state
+        location.reload(); 
+      } catch (err) {
+        console.error(err);
+        alert("Something went wrong while claiming.");
+      }
+
+    } else {
+      // Status not active, show message
+      let msg = '';
+      if (food.status === 'claimed') msg = "This food has already been claimed.";
+      else if (food.status === 'expired') msg = "This food post has expired.";
+      else msg = `This food is currently marked as: ${food.status}`;
+
+      alert(msg);
+    }
+  };
+
+
+
+
 
   return (
     // <>
@@ -129,7 +179,7 @@ export default function FoodDetailsPage() {
 
     //   </div>
     // </>
-     
+
     <>
       <Navbar />
       <div className="max-w-md mx-auto p-4 space-y-6 text-[#333] font-sans">
@@ -201,7 +251,16 @@ export default function FoodDetailsPage() {
           <FaWhatsapp className="inline-block mr-2 text-lg" />
           Chat on WhatsApp
         </a>
+
+        <button
+          className={`block w-full text-center py-3 rounded-xl font-semibold shadow-lg transition-all
+    ${food.status === 'active' ? 'bg-[#b6985a] text-white hover:brightness-110' : 'bg-gray-300 text-gray-600 cursor-not-allowed'}`}
+          onClick={handleClaimFood}
+        >
+          {food.status === 'active' ? 'Claim Now' : food.status.charAt(0).toUpperCase() + food.status.slice(1)}
+        </button>
+
       </div>
     </>
-    );
+  );
 }

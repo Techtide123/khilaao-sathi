@@ -11,13 +11,17 @@ const FoodSchema = new mongoose.Schema({
   postedAt: { type: Date, default: Date.now },
   status: {
     type: String,
-    enum: ['active', 'expired', 'closed'],
+    enum: ['active', 'expired', 'claimed' , 'closed'],
     default: 'active',
   },
   expiresAt: {
     type: Date,
     default: () => new Date(Date.now() + 2 * 60 * 60 * 1000), // 2 hrs
   },
+  uid: { type: String, required: true },
+  claimedBy: { type: String, default: null },
+  claimedAt: { type: Date, default: null }
+
 });
 
 export default mongoose.models.Food || mongoose.model('Food', FoodSchema);

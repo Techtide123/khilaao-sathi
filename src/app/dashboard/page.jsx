@@ -6,8 +6,7 @@ import FoodList from '@/components/dashhome/FoodList';
 import Navbar from '@/components/Header/Navbar';
 import Profile from '@/components/Myprofile/Profile';
 import dynamic from 'next/dynamic';
-
-
+import MyPostSlider from '@/components/dashhome/Mypost'
 
 
 const MapClient = dynamic(() => import('@/components/dashhome/Map'), {
@@ -33,8 +32,9 @@ export default function DashboardPage() {
                     const validPosts = data.foods.filter(
                         (post) => post.lat !== undefined && post.lng !== undefined
                     );
-                    setPosts(validPosts); // Set filtered posts with valid lat/lng
-                    console.log("Valid posts with coordinates:", validPosts);
+                    setPosts(validPosts);
+                    // Set filtered posts with valid lat/lng
+                    // console.log("Valid posts with coordinates:", validPosts);
                 } else {
                     console.error("Expected an array in data.foods but got:", data.foods);
                 }
@@ -49,6 +49,8 @@ export default function DashboardPage() {
             case 'home':
                 return (
                     <>
+                        {/* My Posts */}
+                        <MyPostSlider />
                         {/* <Map /> */}
                         <MapClient posts={posts} />
 

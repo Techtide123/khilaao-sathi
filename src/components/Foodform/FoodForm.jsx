@@ -5,6 +5,8 @@ import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import { useRouter } from 'next/navigation';
+import { getAuth } from "firebase/auth";
+
 
 
 // Fix Leaflet icon issue for SSR
@@ -28,7 +30,10 @@ export default function MultiStepForm() {
     peopleCount: '',
     lat: null,
     lng: null,
+    
   });
+  const auth = getAuth();
+  const user = auth.currentUser;
   const router = useRouter();
 
   // Set current location
@@ -41,6 +46,12 @@ export default function MultiStepForm() {
       });
     }
   }, [locationMode]);
+  
+  // if (user) {
+  //   const uid = user.uid; // ✅ This is the UID you need
+  //   console.log("User UID:", uid);
+  // }
+
 
   function LocationPicker() {
     useMapEvents({
@@ -73,12 +84,14 @@ export default function MultiStepForm() {
         body: JSON.stringify({
           ...form,
           peopleCount: parseInt(form.peopleCount),
+          uid: user.uid
         }),
       });
 
       const data = await res.json();
       alert(data.message || 'Food posted successfully!');
-      router.push('/');
+      router.push('/dashboard');
+
       // Reset form
       setForm({
         title: '',
@@ -89,6 +102,7 @@ export default function MultiStepForm() {
         lng: null,
       });
       setStep(1);
+
     } catch (err) {
       console.error(err);
       alert('Submission failed');

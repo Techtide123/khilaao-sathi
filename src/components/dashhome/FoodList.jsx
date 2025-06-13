@@ -30,49 +30,11 @@ export default function FoodPage() {
   }, [filter]);
 
   return (
-    // <div className="p-6 max-w-4xl mx-auto">
-    //   {/* Filter Tabs */}
-    //   <div className="flex gap-4 mb-6">
-    //     {['all', 'active', 'inactive'].map((type) => (
-    //       <button
-    //         key={type}
-    //         onClick={() => setFilter(type)}
-    //         className={`px-4 py-2 rounded-full ${filter === type ? 'bg-yellow-600 text-white' : 'bg-gray-200 text-gray-700'
-    //           }`}
-    //       >
-    //         {type.charAt(0).toUpperCase() + type.slice(1)}
-    //       </button>
-    //     ))}
-    //   </div>
-
-    //   {/* Content */}
-    //   {loading ? (
-    //     <p className="text-gray-500">Loading...</p>
-    //   ) : foods.length === 0 ? (
-    //     <p className="text-gray-500">No food items found.</p>
-    //   ) : (
-    //     <ul className="space-y-4">
-    //       {foods.map((food) => (
-    //         <li key={food._id} className="p-4 border rounded shadow">
-    //           <Link href={`/fooddetails/${food._id}`}>
-    //             <h3 className="text-lg font-semibold">{food.title}</h3>
-    //             <p className="text-sm text-gray-500">
-    //               Posted at: {food.postedAtFormatted || new Date(food.postedAt).toLocaleString()}
-    //             </p>
-    //             <p>{food.description}</p>
-    //             <p className="text-sm">People Count: {food.peopleCount}</p>
-    //             <p className="text-sm">Contact: {food.contact}</p>
-    //           </Link>
-    //         </li>
-    //       ))}
-    //     </ul>
-    //   )}
-    // </div>
     <>
       <div className="p-4 max-w-3xl mx-auto">
         {/* Filter Tabs */}
         <div className="flex gap-3 mb-5">
-          {['all', 'active', 'inactive'].map((type) => (
+          {['all', 'active', 'claimed', 'expired'].map((type) => (
             <button
               key={type}
               onClick={() => setFilter(type)}
@@ -92,7 +54,7 @@ export default function FoodPage() {
         ) : foods.length === 0 ? (
           <p className="text-gray-500">No food items found.</p>
         ) : (
-          <ul className="space-y-3">
+          <ul className="space-y-3 mb-7">
             {foods.map((food) => (
               <li
                 key={food._id}
@@ -122,6 +84,10 @@ export default function FoodPage() {
                         {food.username || 'Anonymous'}
                       </span>
                     </div>
+                    <div>
+                      <p className='text-sm text-gray-600'>Status : {food.status}</p>
+                    </div>
+         
                   </div>
                 </Link>
               </li>

@@ -17,7 +17,7 @@ const MapClient = ({ posts }) => {
   const defaultCenter = [20.295, 85.818];
 
   return (
-    <MapContainer center={defaultCenter} zoom={8} scrollWheelZoom={false} className="h-[200px] w-full rounded-lg z-0">
+    <MapContainer center={defaultCenter} zoom={6} scrollWheelZoom={false} className="h-[200px] w-full rounded-lg z-0">
       <TileLayer
         attribution="&copy; OpenStreetMap contributors"
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -25,9 +25,9 @@ const MapClient = ({ posts }) => {
       {posts.map((post) => (
         <Marker key={post._id} position={[post.lat, post.lng]}>
           <Popup>
-            <strong>{post.title}</strong><br />
-            {post.description}<br />
-            📞 {post.contact}
+            <strong className="text-lg">{post.title}</strong><br />
+            <p>👥 {post.peopleCount}</p>{post.description}<br />
+            <p> 📞 {post.contact}</p>
           </Popup>
         </Marker>
       ))}

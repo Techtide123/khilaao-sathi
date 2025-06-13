@@ -1,21 +1,3 @@
-// import connect from "@/dbConfig/dbconfig";
-// import Food from "@/models/foodModels";
-// import { NextResponse } from "next/server";
-
-// export async function GET(req, res) {
-//     try {
-//         await connect();
-//         const food = await Food.find({});
-//         // console.log("This is food List", food);
-        
-//         // backend
-//         return NextResponse.json({ foods: food }, { status: 200 });
-        
-//     } catch (error) {
-//         return NextResponse.json({ error: "Something went wrong" }, { status: 500 });
-//     }
-// }
-
 
 import connect from "@/dbConfig/dbconfig";
 import Food from "@/models/foodModels";
@@ -41,13 +23,33 @@ export async function GET(req) {
     const twoHoursAgo = new Date(Date.now() - 2 * 60 * 60 * 1000);
     let foods;
 
+
+    // Step 1: Update all expired posts
+    await Food.updateMany(
+      {
+        postedAt: { $lt: twoHoursAgo }, // older than 2 hours
+        status: { $ne: 'claimed' }      // not claimed
+      },
+      {
+        $set: { status: 'expired' }
+      }
+    );
+
+
     if (filter === "active") {
-      foods = await Food.find({ postedAt: { $gte: twoHoursAgo } }).sort({ postedAt: -1 });
-    } else if (filter === "inactive") {
-      foods = await Food.find({ postedAt: { $lt: twoHoursAgo } }).sort({ postedAt: -1 });
+      foods = await Food.find({ status: 'active' }).sort({ postedAt: -1 });
+    } else if (filter === "expired") {
+      foods = await Food.find({ status: 'expired' }).sort({ postedAt: -1 });
+    }
+    else if (filter === "claimed") {
+      foods = await Food.find({ status: 'claimed' }).sort({ postedAt: -1 });
     } else {
       foods = await Food.find().sort({ postedAt: -1 });
     }
+
+
+
+
 
     // Format the date for each item
     const formattedFoods = foods.map(food => ({
