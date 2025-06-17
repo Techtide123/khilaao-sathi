@@ -35,7 +35,7 @@ export async function POST(req) {
         included_segments: ["All"], // Sends to all subscribed users
         headings: { en: "🍱 New Food Posted!" },
         contents: { en: `${title} is now available. Come and claim it!` },
-        url: "http://localhost:3000" // Replace with your actual frontend URL
+        url: "https://khilaao-sathi.vercel.app" // Replace with your actual frontend URL
       }),
     });
 
