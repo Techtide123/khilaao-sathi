@@ -1,5 +1,6 @@
 'use client';
 
+import dynamic from 'next/dynamic';
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { FaWhatsapp, FaMapMarkerAlt } from 'react-icons/fa';
@@ -7,6 +8,12 @@ import { MdAccessTime } from 'react-icons/md';
 import { PiCheckCircleBold } from 'react-icons/pi';
 import Navbar from '@/components/Header/Navbar';
 import { getAuth } from "firebase/auth";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+const RouteMap = dynamic(() => import('@/components/FoodDetails/RouteMap'), {
+  ssr: false
+});
+
 
 // Swiper Imports
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -15,15 +22,20 @@ import 'swiper/css/pagination';
 import { Pagination } from 'swiper/modules';
 
 export default function FoodDetailsPage() {
+
   const { id } = useParams();
   const [food, setFood] = useState(null);
   const [locationName, setLocationName] = useState("");
+  const [showClaimedPopup, setShowClaimedPopup] = useState(false);
+  const [claimerName, setClaimerName] = useState("");
+
 
   useEffect(() => {
     async function fetchFood() {
       const res = await fetch(`/api/fooddetails/${id}`);
       const data = await res.json();
       setFood(data.food);
+      console.log(data.food);
     }
 
     fetchFood();
@@ -52,13 +64,47 @@ export default function FoodDetailsPage() {
     }
   }, [food]);
 
+  useEffect(() => {
+    if (food?.status === 'claimed' && food?.claimedBy) {
+      setShowClaimedPopup(true);
+
+
+      // Fetch claimer name from backend
+      const fetchClaimerName = async () => {
+        try {
+          const res = await fetch(`/api/cuserinfo/${food.claimedBy}`);
+          const data = await res.json();
+
+          if (res.ok) {
+            setClaimerName(data.user.name || "Anonymous");
+          } else {
+            setClaimerName("Unknown User");
+          }
+        } catch (error) {
+          console.error("Error fetching claimer name:", error);
+          setClaimerName("Unknown User");
+        }
+      };
+
+      fetchClaimerName();
+    }
+  }, [food]);
+
+
+
+
+  if (food && !food.images) {
+    food.images = [
+      "https://res.cloudinary.com/demo/image/upload/v1695062396/sample.jpg",
+      "https://images.unsplash.com/photo-1600891964599-f61ba0e24092?w=800",
+      "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800"
+    ];
+  }
+
+
   if (!food) return <p className="text-center mt-10 text-gray-500">Loading...</p>;
 
-  food.images = [
-    "https://res.cloudinary.com/demo/image/upload/v1695062396/sample.jpg",
-    "https://images.unsplash.com/photo-1600891964599-f61ba0e24092?w=800",
-    "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800"
-  ];
+
 
   // claim Food Status function
   const handleClaimFood = async () => {
@@ -66,7 +112,14 @@ export default function FoodDetailsPage() {
     const user = auth.currentUser;
 
     if (!user) {
-      alert("You must be logged in to claim food.");
+      toast.error("You must be logged in to claim food.");
+      return;
+    }
+
+    // Prevent poster from claiming their own food
+    if (user.uid === food.uid) {
+      toast.warning("You cannot claim your own food post.");
+      // alert(food.uid +" :: " + user.uid);
       return;
     }
 
@@ -74,34 +127,50 @@ export default function FoodDetailsPage() {
       const confirmClaim = window.confirm("Are you sure you want to claim this food?");
       if (!confirmClaim) return;
 
-      try {
-        const res = await fetch('/api/claimfood', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            foodId: food._id,
-            uid: user.uid
-          })
-        });
+      // ✅ Get current location
+      navigator.geolocation.getCurrentPosition(async (position) => {
+        const claimerLat = position.coords.latitude;
+        const claimerLng = position.coords.longitude;
 
-        const data = await res.json();
-        alert(data.message);
+        try {
+          const res = await fetch('/api/claimfood', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              foodId: food._id,
+              uid: user.uid,
+              claimerLat,
+              claimerLng
+            })
+          });
 
-        // Optional: reload page or update state
-        location.reload(); 
-      } catch (err) {
-        console.error(err);
-        alert("Something went wrong while claiming.");
-      }
+          const data = await res.json();
+          toast.success(data.message);
+
+
+          // Optional: refresh
+          location.reload();
+          // Here is the After Claiming the food 
+
+
+        } catch (err) {
+          console.error(err);
+          toast.error("Something went wrong while claiming.");
+        }
+      }, (error) => {
+        console.error(error);
+        toast.error("Failed to get your location. Please allow GPS permission.");
+      });
 
     } else {
-      // Status not active, show message
+      // Status not active
       let msg = '';
       if (food.status === 'claimed') msg = "This food has already been claimed.";
       else if (food.status === 'expired') msg = "This food post has expired.";
       else msg = `This food is currently marked as: ${food.status}`;
 
-      alert(msg);
+      toast.info(msg);
+
     }
   };
 
@@ -110,76 +179,6 @@ export default function FoodDetailsPage() {
 
 
   return (
-    // <>
-    //   <Navbar />
-    //   <div className="max-w-md mx-auto p-4 space-y-4">
-
-    //     {/* Image Slider */}
-    //     <Swiper
-    //       pagination={{ clickable: true }}
-    //       modules={[Pagination]}
-    //       className="w-full h-52 rounded-xl overflow-hidden"
-    //     >
-    //       {(food.images || []).map((imgUrl, idx) => (
-    //         <SwiperSlide key={idx}>
-    //           <img
-    //             src={imgUrl}
-    //             alt={`Food Image ${idx}`}
-    //             className="w-full h-52 object-cover"
-    //           />
-    //         </SwiperSlide>
-    //       ))}
-    //     </Swiper>
-
-
-
-    //     {/* Title & Description */}
-    //     <h1 className="text-2xl font-semibold text-[#b6985a]">{food.title}</h1>
-    //     <p className="text-gray-700">{food.description}</p>
-
-    //     {/* Location */}
-    //     <div className="flex items-center gap-2 text-sm text-gray-700">
-    //       <FaMapMarkerAlt className="text-red-500" />
-    //       <span>{locationName}</span>
-    //       <a
-    //         href={`https://www.google.com/maps?q=${food.lat},${food.lng}`}
-    //         target="_blank"
-    //         className="text-blue-600 underline ml-2"
-    //       >
-    //         View on Map
-    //       </a>
-    //     </div>
-
-    //     {/* More Info */}
-    //     <div className="text-sm text-gray-600 space-y-2">
-    //       <div className="flex items-center gap-2">
-    //         <MdAccessTime className="text-blue-500" />
-    //         <span>Posted: {new Date(food.postedAt).toLocaleString()}</span>
-    //       </div>
-    //       <div className="flex items-center gap-2">
-    //         <PiCheckCircleBold className="text-green-600" />
-    //         <span>Status: <span className="capitalize">{food.status}</span></span>
-    //       </div>
-    //       <div className="flex items-center gap-2">
-    //         <span className="font-medium">People:</span> {food.peopleCount}
-    //       </div>
-    //     </div>
-
-    //     {/* WhatsApp Button */}
-    //     <a
-    //       href={`https://wa.me/${food.contact}`}
-    //       target="_blank"
-    //       rel="noopener noreferrer"
-    //       className="mt-4 block w-full text-center bg-green-500 text-white py-2 rounded-lg font-semibold hover:bg-green-600 transition"
-    //     >
-    //       <FaWhatsapp className="inline-block mr-2" />
-    //       Chat on WhatsApp
-    //     </a>
-
-
-    //   </div>
-    // </>
-
     <>
       <Navbar />
       <div className="max-w-md mx-auto p-4 space-y-6 text-[#333] font-sans">
@@ -252,15 +251,71 @@ export default function FoodDetailsPage() {
           Chat on WhatsApp
         </a>
 
+
+        {/* Show Popup if current user claimed */}
+        {showClaimedPopup && (
+          <div className="fixed inset-0 z-50 flex items-end justify-center">
+            {/* Blurred Overlay on Bottom Half */}
+            <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" />
+
+            {/* Popup Content */}
+            <div className="relative w-full max-w-md bg-white rounded-t-2xl shadow-2xl p-6 animate-slide-up z-10">
+              {/* Close Button */}
+              <button
+                onClick={() => setShowClaimedPopup(false)}
+                className="absolute top-2 right-2 text-gray-400 hover:text-gray-700 text-xl"
+              >
+                ✕
+              </button>
+
+              <div className="text-center space-y-4 mt-6">
+                <h2 className="text-2xl font-semibold text-green-600">🎉 Claimed Successfully!</h2>
+                <p className="text-gray-700">
+                  You have successfully claimed this food item. Please collect it soon.
+                </p>
+                <p className="text-sm text-gray-500 italic">
+                  Claimed by: <span className="font-medium text-gray-800">{claimerName}</span>
+                </p>
+                <RouteMap
+                  senderLat={food.lat}
+                  senderLng={food.lng}
+                  claimerLat={food.claimerLat}
+                  claimerLng={food.claimerLng}
+                />
+                <button
+                  onClick={() => setShowClaimedPopup(false)}
+                  className="mt-4 px-5 py-2 bg-[#b6985a] text-white rounded-full shadow hover:brightness-110 transition"
+                >
+                  Got it!
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+
+
+
+
+
+
+
+
+
+
+
+
         <button
           className={`block w-full text-center py-3 rounded-xl font-semibold shadow-lg transition-all
-    ${food.status === 'active' ? 'bg-[#b6985a] text-white hover:brightness-110' : 'bg-gray-300 text-gray-600 cursor-not-allowed'}`}
+           ${food.status === 'active' ? 'bg-[#b6985a] text-white hover:brightness-110' : 'bg-gray-300 text-gray-600 cursor-not-allowed'}`}
           onClick={handleClaimFood}
         >
           {food.status === 'active' ? 'Claim Now' : food.status.charAt(0).toUpperCase() + food.status.slice(1)}
         </button>
-
+        <ToastContainer position="top-center" />
       </div>
     </>
   );
 }
+
+

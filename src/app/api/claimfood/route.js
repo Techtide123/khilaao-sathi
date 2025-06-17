@@ -4,14 +4,14 @@ import { NextResponse } from "next/server";
 
 export async function POST(req) {
   try {
-    const { foodId, uid } = await req.json();
+    const { foodId, uid, claimerLat, claimerLng } = await req.json();
 
-    if (!foodId || !uid) {
-      return NextResponse.json({ message: "Missing foodId or uid" }, { status: 400 });
+    if (!foodId || !uid || !claimerLat || !claimerLng) {
+      return NextResponse.json({ message: "Missing required fields" }, { status: 400 });
     }
 
     await dbConnect();
-    
+
     const food = await Food.findById(foodId); // ✅ correct usage
 
     if (!food) {
@@ -25,9 +25,11 @@ export async function POST(req) {
     food.status = 'claimed';
     food.claimedBy = uid;
     food.claimedAt = new Date();
+    food.claimerLat = claimerLat;
+    food.claimerLng = claimerLng;
 
     await food.save();
-
+    console.log("✅ Food successfully claimed! with the coordinates:", claimerLat, claimerLng);
     return NextResponse.json({ message: "Food successfully claimed!" }, { status: 200 });
 
   } catch (error) {

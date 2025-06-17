@@ -38,7 +38,7 @@ export default function FoodPage() {
             <button
               key={type}
               onClick={() => setFilter(type)}
-              className={`px-4 py-1.5 rounded-full text-sm font-medium transition ${filter === type
+              className={`px-2 py-1.5 rounded-full text-sm font-medium transition ${filter === type
                   ? 'bg-[#b6985a] text-white shadow'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
