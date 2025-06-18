@@ -7,7 +7,6 @@ import { db } from "@/lib/firebaseConfig";
 import { doc, setDoc, getDoc } from "firebase/firestore";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { FaUser, FaEnvelope, FaLock, FaPhone, FaGoogle } from "react-icons/fa";
 import Image from "next/image";
 import Link from "next/link";
 
