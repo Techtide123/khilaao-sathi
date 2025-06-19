@@ -79,7 +79,7 @@ export default function DashboardPage() {
             <Navbar />
 
             {/* Main Content (Dynamic) */}
-            <main className="flex-1 p-4">
+            <main className="flex-1 ">
                 {renderTabContent()}
             </main>
 
