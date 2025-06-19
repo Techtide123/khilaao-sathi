@@ -7,7 +7,7 @@ import Navbar from '@/components/Header/Navbar';
 import Profile from '@/components/Myprofile/Profile';
 import dynamic from 'next/dynamic';
 import MyPostSlider from '@/components/dashhome/Mypost'
-
+import Hero from '@/components/dashhome/Hero';
 
 const MapClient = dynamic(() => import('@/components/dashhome/Map'), {
     ssr: false,
@@ -49,6 +49,8 @@ export default function DashboardPage() {
             case 'home':
                 return (
                     <>
+                        {/* Hero section */}
+                        <Hero />
                         {/* My Posts */}
                         <MyPostSlider />
                         {/* <Map /> */}
