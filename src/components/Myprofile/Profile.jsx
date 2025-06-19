@@ -3,12 +3,26 @@ import { useEffect, useState } from 'react';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { app } from '@/lib/firebaseConfig';
 
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { Label } from "@/components/ui/label"
+import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+
+
 export default function ProfilePage() {
   const [fbUser, setFbUser] = useState(null);        // Firebase auth user
   const [profile, setProfile] = useState(null);      // Your MongoDB profile
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState();
   const auth = getAuth(app);
+
+
+
+
+  const [openProfileModal, setOpenProfileModal] = useState(false)
+  const [openPasswordModal, setOpenPasswordModal] = useState(false)
 
   // 1) Listen for Firebase login state
   useEffect(() => {
@@ -49,49 +63,99 @@ export default function ProfilePage() {
   // Pull fields from Firebase user...
   const { displayName, email, phoneNumber, photoURL, metadata, uid } = fbUser;
 
+  
   return (
-    <>
-
-      <div className="bg-gradient-to-br from-white to-gray-100 rounded-2xl shadow-xl p-6 max-w-md mx-auto mt-10">
-        <div className="flex flex-col items-center text-center">
-          <img
-            src={photoURL || '/user.png'}
-            alt="Profile"
-            className="w-24 h-24 rounded-full border-4 border-white shadow-lg"
-          />
-          <h2 className="mt-4 text-2xl font-bold text-gray-800">{profile.name || 'Unnamed User'}</h2>
-          <p className="text-gray-500 text-sm">{email}</p>
-          <p className="text-gray-700 mt-4"><strong>Phone :</strong> {profile.phone}</p>
-        </div>
-
-        {/* MongoDB Profile Details */}
-        {profile && (
-          <div className="mt-2 bg-white rounded-xl shadow-inner p-4 space-y-2">
-
-            {/* Add more fields here if needed */}
+    <div className="max-w-6xl mx-auto px-4 md:px-6 py-4 space-y-8">
+      <Card className="shadow-xl border border-gray-200 dark:border-gray-800">
+        <CardHeader className="flex flex-col lg:flex-row items-center gap-6">
+          {/* Profile Image */}
+          <div className="shrink-0">
+            <img
+              src="/user.png"
+              alt="User Avatar"
+              width={120}
+              height={120}
+              className="rounded-full object-cover border-4 border-white shadow-md"
+            />
           </div>
-        )}
 
-        {/* Firebase Metadata */}
-        <div className="mt-6 flex flex-col sm:flex-row sm:justify-center sm:space-x-4 space-y-2 sm:space-y-0">
-          <button className="bg-[#b6985a] hover:bg-yellow-700 text-white py-1.5 px-3 text-sm rounded-lg shadow transition">
-            <strong>Last Login:</strong><br />
-            <span className="text-xs font-light">{new Date(metadata.lastSignInTime).toLocaleString()}</span>
-          </button>
-          <button className="bg-[#b6985a] hover:bg-yellow-700 text-white py-1.5 px-3 text-sm rounded-lg shadow transition">
-            <strong>Created On:</strong><br />
-            <span className="text-xs font-light">{new Date(metadata.creationTime).toLocaleString()}</span>
-          </button>
-        </div>
+          {/* Profile Details */}
+          <div className="flex-1 w-full space-y-2 text-center lg:text-left">
+            <h1 className="text-3xl font-bold text-gray-800 dark:text-white">{profile.name}</h1>
+            <p className="text-sm text-gray-600 dark:text-gray-400">{email}</p>
+            <p className="text-sm text-gray-600 dark:text-gray-400">📞 {profile.phone}</p>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:gap-6 text-sm text-gray-500 dark:text-gray-400 pt-2">
+              <p>🕒 Last Login: <span className="font-medium">Jun 18, 2025</span></p>
+              <p>📅 Created On: <span className="font-medium">Jan 12, 2024</span></p>
+            </div>
+          </div>
 
-        {/* UID and Error */}
-        <div className="mt-4 text-center text-sm text-gray-600">
-          <p><strong>UID:</strong> <span className="break-all">{uid}</span></p>
-          {error && <p className="text-red-500 mt-2">{error}</p>}
-        </div>
+          {/* Buttons */}
+          <div className="flex flex-col sm:flex-row gap-4 mt-4 lg:mt-0">
+            {/* Update Profile Dialog */}
+            <Dialog open={openProfileModal} onOpenChange={setOpenProfileModal}>
+              <DialogTrigger asChild>
+                <Button variant="outline" className="w-full sm:w-auto">Update Info</Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-md">
+                <DialogHeader>
+                  <DialogTitle>Update Profile</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="name">Name</Label>
+                    <Input id="name" defaultValue="Meadow Richardson" />
+                  </div>
+                  <div>
+                    <Label htmlFor="email">Email</Label>
+                    <Input id="email" defaultValue="meadow@example.com" />
+                  </div>
+                  <div>
+                    <Label htmlFor="phone">Phone</Label>
+                    <Input id="phone" defaultValue="+91 9876543210" />
+                  </div>
+                  <div>
+                    <Label htmlFor="bio">Bio</Label>
+                    <Textarea id="bio" placeholder="Write something..." />
+                  </div>
+                  <div className="text-right">
+                    <Button onClick={() => setOpenProfileModal(false)}>Save</Button>
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
 
-      </div>
-
-    </>
-  );
+            {/* Change Password Dialog */}
+            <Dialog open={openPasswordModal} onOpenChange={setOpenPasswordModal}>
+              <DialogTrigger asChild>
+                <Button className="w-full sm:w-auto">Change Password</Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-md">
+                <DialogHeader>
+                  <DialogTitle>Change Password</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="current-password">Current Password</Label>
+                    <Input type="password" id="current-password" />
+                  </div>
+                  <div>
+                    <Label htmlFor="new-password">New Password</Label>
+                    <Input type="password" id="new-password" />
+                  </div>
+                  <div>
+                    <Label htmlFor="confirm-password">Confirm Password</Label>
+                    <Input type="password" id="confirm-password" />
+                  </div>
+                  <div className="text-right">
+                    <Button onClick={() => setOpenPasswordModal(false)}>Update</Button>
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
+          </div>
+        </CardHeader>
+      </Card>
+    </div>
+  )
 }

@@ -73,7 +73,7 @@ export default function LoginPage() {
               <form className="p-6 md:p-8">
                 <div className="flex flex-col gap-6">
                   <div className="flex flex-col items-center text-center">
-                    <h1 className="text-2xl font-bold text-[#580FC2]">
+                    <h1 className="text-2xl md:text-3xl font-bold text-[#580FC2]">
                       Welcome back
                     </h1>
 
