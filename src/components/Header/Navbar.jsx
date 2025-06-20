@@ -320,17 +320,6 @@ return (
                     )}
                 </button>
 
-  {/* <div>
-    {userData ? (
-      <div>
-        <p>👤 Name: {userData.name}</p>
-        <p>📧 Email: {userData.email}</p>
-        <p>🔑 Role: {userData.role}</p>
-      </div>
-    ) : (
-      <p>Loading user data...</p>
-    )}
-  </div> */}
             </div>
         </div>
         <ToastContainer position="top-center" />
