@@ -145,7 +145,7 @@ export default function Mypost() {
 
 
   return (
-    <section className="py-10 px-4 sm:px-6 md:px-28 relative">
+    <section className="py-10 px-4 sm:px-6 md:px-28 relative" id="fooditems">
       <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-center text-gray-900 dark:text-white mb-6 leading-tight">
         🍽️ Available Food Items
       </h2>
