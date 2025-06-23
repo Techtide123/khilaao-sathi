@@ -8,7 +8,7 @@ import Profile from '@/components/Myprofile/Profile';
 import dynamic from 'next/dynamic';
 import MyPostSlider from '@/components/dashhome/Mypost'
 import Hero from '@/components/dashhome/Hero';
-
+import { Footer } from '@/components/Footer/Footer';
 const MapClient = dynamic(() => import('@/components/dashhome/Map'), {
     ssr: false,
 });
@@ -58,6 +58,7 @@ export default function DashboardPage() {
 
                         {/* Food List */}
                         <FoodList />
+                        <Footer />
                     </>
                 );
             case 'profile':

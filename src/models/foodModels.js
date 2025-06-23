@@ -22,7 +22,11 @@ const FoodSchema = new mongoose.Schema({
   claimedBy: { type: String, default: null },
   claimedAt: { type: Date, default: null }, //claming Time 
   claimerLat: { type: Number, default: null },
-  claimerLng: { type: Number, default: null }
+  claimerLng: { type: Number, default: null },
+  images: {
+    type: [String], // 🔥 Array of Cloudinary image URLs
+    required: true,
+  }
 });
 
 export default mongoose.models.Food || mongoose.model('Food', FoodSchema);

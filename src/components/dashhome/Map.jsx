@@ -66,7 +66,7 @@ export default function MapClient({ posts }) {
   const defaultCenter = [20.295, 85.818];
   const router = useRouter();
   return (
-    <div className="relative overflow-hidden">
+    <div className="relative overflow-hidden" id="foodonmap">
       {/* Background gradient accent */}
       <div className="bg-primary/10 absolute -top-32 -left-32 h-96 w-96 rounded-full blur-3xl" />
       <div className="bg-primary/5 absolute -right-32 -bottom-32 h-96 w-96 rounded-full blur-3xl" />

@@ -125,8 +125,8 @@ export default function Component() {
     const navigationItems = [
         { name: "Home", href: "/dashboard" },
         { name: "About", href: "/about" },
-        { name: "Services", href: "/services" },
-        { name: "Products", href: "/products" },
+        { name: "Post Food", href: "/foodform" },
+        { name: "Find Food", href: "/dashboard#fooditems" },
         { name: "Contact", href: "/contact" },
     ];
 
