@@ -51,6 +51,8 @@ import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, User } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
+import { Skeleton } from "@/components/ui/skeleton"
+
 
 
 export default function Mypost() {
@@ -69,6 +71,7 @@ export default function Mypost() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
   const [loading, setLoading] = useState(false);
+
 
 
 
@@ -176,6 +179,19 @@ export default function Mypost() {
         <ChevronRight className="h-6 w-6 text-gray-700 dark:text-gray-100" />
       </Button>
 
+      {foodList.length === 0 && (
+        <div className="flex gap-4 overflow-x-auto p-2">
+          {Array.from({ length: 5 }).map((_, index) => (
+            <div key={index} className="flex flex-col space-y-3 w-[250px]">
+              <Skeleton className="h-[125px] w-full rounded-xl" />
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-3/4" />
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* Cards */}
       <div className="overflow-x-auto md:overflow-hidden p-2">
@@ -249,6 +265,8 @@ export default function Mypost() {
           ))}
         </div>
       </div>
+
+
     </section>
   );
 }

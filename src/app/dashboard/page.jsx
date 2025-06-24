@@ -33,7 +33,7 @@ export default function DashboardPage() {
     const router = useRouter();
 
 
-    // fetch ythe user data
+    // fetch the user data
     useEffect(() => {
         if (loading) return;
 
@@ -57,7 +57,7 @@ export default function DashboardPage() {
                 const sessionKey = `welcomeShown_${user.uid}`;
                 const hasShownWelcome = sessionStorage.getItem(sessionKey);
 
-                if (hasShownWelcome) {
+                if (!hasShownWelcome) {
                     setOpenWelcome(true);
                     sessionStorage.setItem(sessionKey, "true"); // ✅ Remember for this session
                 }
@@ -69,12 +69,6 @@ export default function DashboardPage() {
 
         fetchUserData();
     }, [loading, user]);
-
-
-
-
-
-
 
 
 
