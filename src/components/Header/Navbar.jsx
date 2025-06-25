@@ -225,7 +225,7 @@ return (
                     <DropdownMenuTrigger asChild>
                         <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                             <Avatar className="h-8 w-8">
-                                <AvatarImage src={userData?.profileImage || "/user.png"} alt="User"   className="h-8 w-8 rounded-full object-contain" />
+                                <AvatarImage src={userData?.profileImage || "/placeholder.svg"} alt="User"   className="h-8 w-8 rounded-full object-contain" />
                                 <AvatarFallback>
                                     <User className="h-4 w-4" />
                                 </AvatarFallback>
