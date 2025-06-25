@@ -11,13 +11,17 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import FullScreenLoader from "@/components/ui/FullScreenLoader"
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
   const router = useRouter();
 
   const handleLogin = async (e) => {
+    setIsLoading(true);
     e.preventDefault();
 
     // Check if fields are empty
@@ -45,6 +49,8 @@ export default function LoginPage() {
         default:
           toast.error('Login failed: ' + err.message);
       }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -64,8 +70,12 @@ export default function LoginPage() {
     }
   };
 
+
+
   return (
     <>
+
+      {isLoading && <FullScreenLoader />}
       <div className="flex w-full items-center justify-center p-3 md:p-10 min-h-[95vh] overflow-hidden bg-gradient-to-b from-[#ede9fe] via-white to-[#f8fafc] ">
         <div className="w-full max-w-4xl">
           <Card className="overflow-hidden p-0 mb-3">
@@ -170,8 +180,6 @@ export default function LoginPage() {
           <ToastContainer position="top-center" />
         </div>
       </div>
-
-
 
     </>
   );
