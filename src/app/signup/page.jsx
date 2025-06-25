@@ -29,16 +29,22 @@ export default function SignupPage() {
         email: "",
         password: "",
         phone: "",
+        image: null, // 👈 for profile image
+
     });
 
     const handleChange = (e) => {
         setForm({ ...form, [e.target.name]: e.target.value });
     };
 
+    const handleImageChange = (e) => {
+        setForm({ ...form, image: e.target.files[0] });
+    };
+
     const handleSignup = async (e) => {
         e.preventDefault();
 
-        if (!form.name || !form.email || !form.password || !form.phone) {
+        if (!form.name || !form.email || !form.password || !form.phone || !form.image) {
             toast.error('Please fill all the fields');
             return;
         }
@@ -50,19 +56,20 @@ export default function SignupPage() {
             const userCredential = await signupWithEmail(form.email, form.password);
             const user = userCredential.user;
 
+
+            // 2️⃣ Prepare FormData
+            const formData = new FormData();
+            formData.append('uid', user.uid);
+            formData.append('name', form.name);
+            formData.append('email', form.email);
+            formData.append('password', form.password);
+            formData.append('phone', form.phone);
+            formData.append('image', form.image); // 👈 file goes here
+
             // Step 2: Store additional info in MongoDB via API
             const res = await fetch('/api/signup', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    uid: user.uid,
-                    name: form.name,
-                    email: form.email,
-                    password: form.password,
-                    phone: form.phone,
-                }),
+                body: formData,
             });
 
             const data = await res.json();
@@ -85,6 +92,15 @@ export default function SignupPage() {
             setLoading(false);
         }
     };
+
+
+
+
+
+
+
+
+
 
 
     const handleGoogleSignup = async () => {
@@ -177,6 +193,17 @@ export default function SignupPage() {
                                             value={form.phone}
                                             onChange={handleChange}
                                             placeholder="+91 1234567890"
+                                            required
+                                        />
+                                    </div>
+                                    <div className="grid gap-3">
+                                        <Label htmlFor="image">Profile Image</Label>
+                                        <Input
+                                            id="image"
+                                            type="file"
+                                            name="image"
+                                            accept="image/*"
+                                            onChange={handleImageChange}
                                             required
                                         />
                                     </div>

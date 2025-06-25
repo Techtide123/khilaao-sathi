@@ -160,7 +160,7 @@ export default function Component() {
             try {
                 const res = await fetch(`/api/cuserinfo/${user.uid}`); // Replace with your API route
                 const resdata = await res.json();
-                console.log("User data:", resdata.user.email);
+                // console.log("User data:", resdata.user.profileImage);
                 setUserData(resdata.user);
             } catch (err) {
                 console.error("Error fetching user data:", err);
@@ -225,7 +225,7 @@ return (
                     <DropdownMenuTrigger asChild>
                         <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                             <Avatar className="h-8 w-8">
-                                <AvatarImage src="/placeholder.svg" alt="User" />
+                                <AvatarImage src={userData?.profileImage || "/user.png"} alt="User"   className="h-8 w-8 rounded-full object-contain" />
                                 <AvatarFallback>
                                     <User className="h-4 w-4" />
                                 </AvatarFallback>
