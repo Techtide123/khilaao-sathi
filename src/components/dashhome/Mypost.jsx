@@ -85,18 +85,23 @@ export default function Mypost() {
   useEffect(() => {
     if (data && users) {
       const foodItemsWithUserInfo = data.map((item) => {
-        const user = users.find((user) => user.uid.toString() === item.uid.toString());
+        const user = users.find(
+          (user) => user?.uid?.toString?.() === item?.uid?.toString?.()
+        );
+
         return {
           ...item,
           postedBy: {
-            name: user ? user.name : "Anonymous",
-            image: user ? user.profileImage : "/placeholder.jpg",
+            name: user?.name || "Anonymous",
+            image: user?.profileImage || "/placeholder.jpg",
           },
         };
       });
+
       setFoodList(foodItemsWithUserInfo);
     }
-  }, [data, users])
+  }, [data, users]);
+
 
 
 
