@@ -1,17 +1,19 @@
 'use client';
 
 import dynamic from 'next/dynamic';
-import Navbar from '@/components/Header/Navbar'
-import { Footer } from '@/components/Footer/Footer';
+import React, { useState } from 'react';
+import 'react-toastify/dist/ReactToastify.css';
+
+
+
 // Dynamically import the actual form with map
 const LocationSelector = dynamic(() => import('@/components/Foodform/FoodForm'), {
   ssr: false,
 });
 
 export default function FoodForm() {
+
   return (<>
-    <Navbar />
     <LocationSelector />
-    <Footer />
   </>);
 }

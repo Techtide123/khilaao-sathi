@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { loginWithEmail, loginWithGoogle } from "@/lib/auth";
 import { useRouter } from "next/navigation";
 import { ToastContainer, toast } from 'react-toastify';
@@ -12,13 +12,33 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import FullScreenLoader from "@/components/ui/FullScreenLoader"
+import { useSearchParams } from "next/navigation";
 
-export default function LoginPage() {
+
+function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const unauthorized = searchParams.get("unauthorized");
+
+
+  useEffect(() => {
+    if (unauthorized) {
+      toast.error("You must be logged in to view this page.");
+
+      // Remove query param after showing toast
+      const timeout = setTimeout(() => {
+        router.replace("/login"); // ✅ replaces the URL without reloading
+      }, 1000); // give it time to show toast
+
+      return () => clearTimeout(timeout);
+    }
+  }, [unauthorized, router]);
+
+
 
   const handleLogin = async (e) => {
     setIsLoading(true);
@@ -54,6 +74,8 @@ export default function LoginPage() {
     }
   };
 
+
+
   const handleGoogleLogin = async () => {
     try {
       await loginWithGoogle();
@@ -77,7 +99,7 @@ export default function LoginPage() {
 
       {isLoading && <FullScreenLoader />}
       <div className="flex w-full items-center justify-center p-3 md:p-10 min-h-[95vh] overflow-hidden bg-gradient-to-b from-[#ede9fe] via-white to-[#f8fafc] ">
-        <div className="w-full max-w-4xl">
+        <div className="w-full max-w-4xl md:mt-20">
           <Card className="overflow-hidden p-0 mb-3">
             <CardContent className="grid p-0 md:grid-cols-2">
               <form className="p-6 md:p-8">
@@ -182,5 +204,15 @@ export default function LoginPage() {
       </div>
 
     </>
+  );
+}
+
+
+
+export default function LoginPages() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <LoginPage />
+    </Suspense>
   );
 }

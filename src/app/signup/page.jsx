@@ -150,8 +150,8 @@ export default function SignupPage() {
 
     return (
         <>
-            <div className="flex w-full items-center justify-center p-3 md:p-4 min-h-[95vh] bg-gradient-to-b from-[#ede9fe] via-white to-[#f8fafc]">
-                <div className="w-full max-w-5xl">
+            <div className="flex w-full items-center justify-center p-3 md:p-4  min-h-[95vh] bg-gradient-to-b from-[#ede9fe] via-white to-[#f8fafc]">
+                <div className="w-full max-w-5xl md:mt-20">
                     <Card className="overflow-hidden mb-3">
                         <CardContent className="grid p-0 md:grid-cols-2">
                             <form className="p-6 md:p-8" onSubmit={handleSignup}>

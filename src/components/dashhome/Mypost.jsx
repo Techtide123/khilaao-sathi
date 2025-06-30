@@ -52,7 +52,8 @@ import { ChevronLeft, ChevronRight, User } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import { Skeleton } from "@/components/ui/skeleton"
-
+import usefoodStore from "@/store/foodStore";
+import useUserStore from "@/store/userStore";
 
 
 export default function Mypost() {
@@ -61,6 +62,48 @@ export default function Mypost() {
   const [translateX, setTranslateX] = useState(0);
   const containerRef = useRef(null);
   const router = useRouter();
+
+
+
+  const { data, isLoading, fetchData } = usefoodStore()
+  const { users, fetchUsers } = useUserStore()
+
+  useEffect(() => {
+    if (!data) {
+      fetchData()
+    }
+  }, [data, fetchData])
+
+
+  useEffect(() => {
+    if (!users) {
+      fetchUsers()
+    }
+  }, [users, fetchUsers])
+
+
+  useEffect(() => {
+    if (data && users) {
+      const foodItemsWithUserInfo = data.map((item) => {
+        const user = users.find((user) => user.uid.toString() === item.uid.toString());
+        return {
+          ...item,
+          postedBy: {
+            name: user ? user.name : "Anonymous",
+            image: user ? user.profileImage : "/placeholder.jpg",
+          },
+        };
+      });
+      setFoodList(foodItemsWithUserInfo);
+    }
+  }, [data, users])
+
+
+
+
+
+
+
 
   useEffect(() => {
     const handleResize = () => {
@@ -76,53 +119,53 @@ export default function Mypost() {
 
 
 
-  useEffect(() => {
-    const fetchFoodItemsWithUserInfo = async () => {
-      try {
-        const res = await fetch("/api/getfood/");
-        const data = await res.json();
-        const foodItems = data.foods || [];
-        console.log("✅ Fetched food items:", foodItems);
+  // useEffect(() => {
+  //   const fetchFoodItemsWithUserInfo = async () => {
+  //     try {
+  //       const res = await fetch("/api/getfood/");
+  //       const data = await res.json();
+  //       const foodItems = data.foods || [];
+  //       console.log("✅ Fetched food items:", foodItems);
 
-        const enrichedItems = await Promise.all(
-          foodItems.map(async (item) => {
-            try {
-              const userRes = await fetch(`/api/cuserinfo/${item.uid}`);
-              const userData = await userRes.json();
-              return {
-                ...item,
-                postedBy: {
-                  name: userData.user.name || "Anonymous",
-                  image: userData.image || "/placeholder.svg",
-                },
-              };
-            } catch (err) {
-              console.error(`Error fetching user for uid ${item.uid}`, err);
-              return {
-                ...item,
-                postedBy: {
-                  name: "Unknown",
-                  image: "/placeholder.svg",
-                },
-              };
-            }
-          })
-        );
+  //       const enrichedItems = await Promise.all(
+  //         foodItems.map(async (item) => {
+  //           try {
+  //             const userRes = await fetch(`/api/cuserinfo/${item.uid}`);
+  //             const userData = await userRes.json();
+  //             return {
+  //               ...item,
+  //               postedBy: {
+  //                 name: userData.user.name || "Anonymous",
+  //                 image: userData.image || "/placeholder.svg",
+  //               },
+  //             };
+  //           } catch (err) {
+  //             console.error(`Error fetching user for uid ${item.uid}`, err);
+  //             return {
+  //               ...item,
+  //               postedBy: {
+  //                 name: "Unknown",
+  //                 image: "/placeholder.svg",
+  //               },
+  //             };
+  //           }
+  //         })
+  //       );
 
-        setFoodList(enrichedItems);
-      } catch (err) {
-        console.error("❌ Error fetching food items:", err);
-      }
-    };
+  //       setFoodList(enrichedItems);
+  //     } catch (err) {
+  //       console.error("❌ Error fetching food items:", err);
+  //     }
+  //   };
 
-    fetchFoodItemsWithUserInfo();
-  }, []);
+  //   fetchFoodItemsWithUserInfo();
+  // }, []);
 
 
   const handleScroll = (direction) => {
     if (!containerRef.current) return;
     const cardWidth = containerRef.current.firstChild?.offsetWidth || 250;
-    const maxScroll = (foodList.length - itemsPerView) * cardWidth;
+    const maxScroll = (data.length - itemsPerView) * cardWidth;
 
     const newX =
       direction === "left"
@@ -179,7 +222,7 @@ export default function Mypost() {
         <ChevronRight className="h-6 w-6 text-gray-700 dark:text-gray-100" />
       </Button>
 
-      {foodList.length === 0 && (
+      {isLoading && (
         <div className="flex gap-4 overflow-x-auto p-2">
           {Array.from({ length: 5 }).map((_, index) => (
             <div key={index} className="flex flex-col space-y-3 w-[250px]">
@@ -202,7 +245,7 @@ export default function Mypost() {
           }}
           ref={containerRef}
         >
-          {foodList.map((item, index) => (
+          {data?.map((item, index) => (
             <Card
               key={item.id || index}
               className="w-[240px] shrink-0 rounded-2xl overflow-hidden shadow-lg hover:scale-[1.03] transition-transform bg-white dark:bg-zinc-800 p-0"
@@ -223,8 +266,15 @@ export default function Mypost() {
                 <div className="flex items-center gap-3 mb-3">
                   <Avatar className="h-8 w-8 bg-gray-200">
                     <AvatarImage
-                      src={item.postedBy?.image || "/placeholder.svg"}
-                      alt={item.postedBy?.name || "User"}
+                      src={
+                        foodList.find((food) => food._id === item._id)?.postedBy?.image ||
+                        "/placeholder.jpg"
+                      }
+                      alt={
+                        foodList.find((food) => food._id === item._id)?.postedBy?.name ||
+                        "User"
+                      }
+                      className="w-full h-full object-contain"
                     />
                     <AvatarFallback className="flex items-center justify-center">
                       <User className="h-4 w-4 text-gray-600" />
@@ -233,7 +283,9 @@ export default function Mypost() {
 
                   <div className="flex flex-col">
                     <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                      {(item.postedBy?.name?.split(" ").slice(0, 2).join(" ")) || "Unknown User"}
+                      {/* {(item.postedBy?.name?.split(" ").slice(0, 2).join(" ")) || "Unknown User"} */}
+                      {/* Fetching the user infor from the backend in the user stire */}
+                      {foodList && foodList.find((food) => food._id === item._id)?.postedBy?.name?.split(" ").slice(0, 2).join(" ") || "Unknown User"}
                     </span>
 
 

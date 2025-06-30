@@ -255,8 +255,8 @@ import { Loader2 } from "lucide-react";
 import FullScreenLoader from "@/components/ui/FullScreenLoader"
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
-
+import { useRouter } from 'next/navigation';
+import ProtectedRoute from "@/components/ProtectedRoute";
 // Fix Leaflet icon loading
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -283,8 +283,14 @@ export default function FoodPostForm() {
   });
 
   const [previews, setPreviews] = useState([]);
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
+
+  const router = useRouter();
+
+
+
+
 
 
   // 🌍 Auto-detect current location
@@ -366,6 +372,7 @@ export default function FoodPostForm() {
         setForm({ title: "", description: "", contact: "", peopleCount: "", lat: 20.2961, lng: 85.8245, images: [] });
         setPreviews([]);
         setStep(1);
+        router.push("/allfoods");
       } else {
         toast.error("❌ Failed to submit.");
       }
@@ -381,6 +388,7 @@ export default function FoodPostForm() {
 
   return (
     <>
+    <ProtectedRoute>
       {isLoading && <FullScreenLoader />}
       <section className=" py-32 md:py-42  px-4 md:px-30">
         <div className="container">
@@ -547,7 +555,10 @@ export default function FoodPostForm() {
 
           </div>
         </div>
+        
       </section>
+       
+       </ProtectedRoute>
     </>
   );
 };

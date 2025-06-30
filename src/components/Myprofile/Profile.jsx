@@ -7,10 +7,10 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger ,DialogDescription} from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog"
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import {Loader2} from 'lucide-react'
+import { Loader2 } from 'lucide-react'
 
 export default function ProfilePage() {
   const [fbUser, setFbUser] = useState(null);        // Firebase auth user
@@ -60,18 +60,18 @@ export default function ProfilePage() {
   // Loader Effcts starts here
   if (loading) {
     return (<div className="flex flex-col items-center justify-center min-h-[200px] space-y-4">
-  <div className="p-4 rounded-full bg-gradient-to-br from-indigo-500 to-violet-500 shadow-md animate-pulse">
-    <Loader2 className="h-10 w-10 text-white animate-spin" />
-  </div>
-  <p className="text-base text-gray-600 dark:text-gray-400">Loading your profile…</p>
-</div>);
+      <div className="p-4 rounded-full bg-gradient-to-br from-indigo-500 to-violet-500 shadow-md animate-pulse">
+        <Loader2 className="h-10 w-10 text-white animate-spin" />
+      </div>
+      <p className="text-base text-gray-600 dark:text-gray-400">Loading your profile…</p>
+    </div>);
   }
   if (!fbUser) {
     return <p className="text-center mt-10 text-red-500">You must be signed in to view this page.</p>;
   }
 
 
-  
+
   // Pull fields from Firebase user...
   const { displayName, email, phoneNumber, photoURL, metadata, uid } = fbUser;
 
@@ -79,7 +79,7 @@ export default function ProfilePage() {
   // Update Information function 
   const updateInfo = async (e) => {
     e.preventDefault();
-  
+
     // 3) Update your extended profile on your API
     try {
       const res = await fetch(`/api/cuserinfo/${uid}`, {
@@ -97,7 +97,7 @@ export default function ProfilePage() {
       setProfile(user); // update UI with new values
       toast.success("Profile updated!");
       setOpenProfileModal(false); // close modal
-      
+
     } catch (err) {
       toast.error("Update failed: " + err.message);
     }
@@ -167,10 +167,10 @@ export default function ProfilePage() {
 
                 <DialogContent className="sm:max-w-md">
                   <DialogHeader>
-                         <DialogTitle>Update Profile</DialogTitle>
-      <DialogDescription>
-        Make changes to your profile here. Click save when you're done.
-      </DialogDescription>
+                    <DialogTitle>Update Profile</DialogTitle>
+                    <DialogDescription>
+                      Make changes to your profile here. Click save when you're done.
+                    </DialogDescription>
                   </DialogHeader>
 
                   {/* ✅ Wrap fields in a form */}
@@ -190,6 +190,9 @@ export default function ProfilePage() {
                     </div>
                   </form>
                 </DialogContent>
+
+
+
               </Dialog>
 
 
@@ -202,7 +205,7 @@ export default function ProfilePage() {
           </CardHeader>
         </Card>
       </div>
-          <ToastContainer position="top-center" />
+      <ToastContainer position="top-center" />
     </div>
   )
 }

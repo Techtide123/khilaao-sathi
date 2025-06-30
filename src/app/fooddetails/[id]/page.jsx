@@ -6,7 +6,7 @@ import { useParams } from 'next/navigation';
 import { FaWhatsapp, FaMapMarkerAlt } from 'react-icons/fa';
 import { MdAccessTime } from 'react-icons/md';
 import { PiCheckCircleBold } from 'react-icons/pi';
-import Navbar from '@/components/Header/Navbar';
+
 import { getAuth } from "firebase/auth";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -20,10 +20,11 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/css';
 import 'swiper/css/pagination';
 import { Pagination } from 'swiper/modules';
-import { Footer } from '@/components/Footer/Footer';
+
 import { Button } from '@/components/ui/button';
 import { Star, Truck, ShieldCheck, Heart, Landmark, UserCheck, User, Clock, Users, X, LoaderIcon } from "lucide-react";
 import FullScreenLoader from '@/components/ui/FullScreenLoader'
+import usefoodStore from '@/store/foodStore'
 
 
 export default function FoodDetailsPage() {
@@ -35,17 +36,48 @@ export default function FoodDetailsPage() {
   const [claimerName, setClaimerName] = useState("");
   const [posterName, setPosterName] = useState("");
 
+  const [foodItem, setFoodItem] = useState(null)
+  const { data, isLoading, fetchData } = usefoodStore();
 
+
+
+
+
+  // Fetchin the data from the Zustant store ##FOODDATA##
+
+  // Fetch data if not already loaded
   useEffect(() => {
-    async function fetchFood() {
-      const res = await fetch(`/api/fooddetails/${id}`);
-      const data = await res.json();
-      setFood(data.food);
-      console.log(data.food);
+    if (!data) {
+      fetchData()
     }
+  }, [data, fetchData])
 
-    fetchFood();
-  }, [id]);
+  // Find item by ID once data is ready
+  useEffect(() => {
+    if (data && id) {
+      const item = data.find((f) => f._id.toString() === id.toString());
+      setFoodItem(item)
+    }
+  }, [data, id])
+
+  // Fetchin the data from the Zustant store ##FOODDATA##
+
+
+
+
+
+
+
+  // useEffect(() => {
+  //   async function fetchFood() {
+  //     const res = await fetch(`/api/fooddetails/${id}`);
+  //     const resdata = await res.json();
+  //     setFood(resdata.food);
+  //     console.log(resdata.food);
+  //   }
+
+  //   fetchFood();
+  // }, [id]);
 
   useEffect(() => {
     async function reverseGeocode(lat, lng) {
@@ -65,20 +97,20 @@ export default function FoodDetailsPage() {
       }
     }
 
-    if (food?.lat && food?.lng) {
-      reverseGeocode(food.lat, food.lng);
+    if (foodItem?.lat && foodItem?.lng) {
+      reverseGeocode(foodItem.lat, foodItem.lng);
     }
-  }, [food]);
+  }, [foodItem]);
 
   useEffect(() => {
-    if (food?.status === 'claimed' && food?.claimedBy) {
+    if (foodItem?.status === 'claimed' && foodItem?.claimedBy) {
       setShowClaimedPopup(true);
 
 
       // Fetch claimer name from backend
       const fetchClaimerName = async () => {
         try {
-          const res = await fetch(`/api/cuserinfo/${food.claimedBy}`);
+          const res = await fetch(`/api/cuserinfo/${foodItem.claimedBy}`);
           const data = await res.json();
 
           if (res.ok) {
@@ -94,13 +126,13 @@ export default function FoodDetailsPage() {
 
       fetchClaimerName();
     }
-  }, [food]);
+  }, [foodItem]);
 
   useEffect(() => {
-    if (food?.uid) {
+    if (foodItem?.uid) {
       const fetchPosterName = async () => {
         try {
-          const res = await fetch(`/api/cuserinfo/${food.uid}`);
+          const res = await fetch(`/api/cuserinfo/${foodItem.uid}`);
           const data = await res.json();
           console.log("Poster data:", data.user.name);
 
@@ -117,16 +149,7 @@ export default function FoodDetailsPage() {
 
       fetchPosterName();
     }
-  }, [food]);
-
-
-
-
-
-
-
-
-
+  }, [foodItem]);
 
   if (food && !food.images) {
     food.images = [
@@ -137,9 +160,9 @@ export default function FoodDetailsPage() {
   }
 
 
-  if (!food) {
+  if (!foodItem) {
     return (
-   <FullScreenLoader />
+      <FullScreenLoader />
     );
   }
 
@@ -156,13 +179,13 @@ export default function FoodDetailsPage() {
     }
 
     // Prevent poster from claiming their own food
-    if (user.uid === food.uid) {
+    if (user.uid === foodItem.uid) {
       toast.warning("You cannot claim your own food post.");
       // alert(food.uid +" :: " + user.uid);
       return;
     }
 
-    if (food.status === 'active') {
+    if (foodItem.status === 'active') {
       const confirmClaim = window.confirm("Are you sure you want to claim this food?");
       if (!confirmClaim) return;
 
@@ -176,7 +199,7 @@ export default function FoodDetailsPage() {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              foodId: food._id,
+              foodId: foodItem._id,
               uid: user.uid,
               claimerLat,
               claimerLng
@@ -204,9 +227,9 @@ export default function FoodDetailsPage() {
     } else {
       // Status not active
       let msg = '';
-      if (food.status === 'claimed') msg = "This food has already been claimed.";
-      else if (food.status === 'expired') msg = "This food post has expired.";
-      else msg = `This food is currently marked as: ${food.status}`;
+      if (foodItem.status === 'claimed') msg = "This food has already been claimed.";
+      else if (foodItem.status === 'expired') msg = "This food post has expired.";
+      else msg = `This food is currently marked as: ${foodItem.status}`;
 
       toast.info(msg);
 
@@ -222,7 +245,7 @@ export default function FoodDetailsPage() {
   bg-gradient-to-b from-gray-100 to-gray-200 
   dark:from-zinc-900 dark:to-zinc-800"
     >
-      <Navbar />
+     
       {/* new Ui */}
 
       <div className="w-full max-w-5xl mx-auto p-6 mt-26 mb-6 bg-white dark:bg-zinc-900 rounded-lg shadow-md text-foreground">
@@ -234,7 +257,7 @@ export default function FoodDetailsPage() {
               modules={[Pagination]}
               className="w-full h-full"
             >
-              {(food.images || []).map((imgUrl, idx) => (
+              {(foodItem?.images || []).map((imgUrl, idx) => (
                 <SwiperSlide key={idx}>
                   <img
                     src={imgUrl}
@@ -255,32 +278,36 @@ export default function FoodDetailsPage() {
             </div>
           </div>
 
+
+
+
+
           {/* Product Info */}
           <div className="flex flex-col">
             {/* Status Tag */}
             <div className="flex items-center gap-4 mb-4">
               <span
                 className={`px-3 py-1 rounded-full text-sm font-medium
-        ${food.status === 'active'
+        ${foodItem?.status === 'active'
                     ? 'bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400'
                     : 'bg-red-100 text-red-600 dark:bg-red-900/20 dark:text-red-400'
                   }`}
               >
-                {food.status.charAt(0).toUpperCase() + food.status.slice(1)}
+                {foodItem?.status.charAt(0).toUpperCase() + foodItem?.status.slice(1)}
               </span>
             </div>
 
             {/* Title */}
-            <h1 className=" text-2xl md:text-3xl font-bold mb-2 text-foreground">{food.title}</h1>
+            <h1 className=" text-2xl md:text-3xl font-bold mb-2 text-foreground"> {foodItem?.title}</h1>
 
             {/* Description */}
-            <p className="text-muted-foreground mb-6">{food.description}</p>
+            <p className="text-muted-foreground mb-6">{foodItem?.description}</p>
 
             {/* Location Info */}
             <div className="grid grid-cols-2 gap-4 mb-8">
               <div className="flex items-center gap-2 text-sm text-foreground">
                 <a
-                  href={`https://www.google.com/maps/search/?api=1&query=${food.lat},${food.lng}`}
+                  href={`https://www.google.com/maps/search/?api=1&query=${foodItem?.lat},${foodItem?.lng}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-2 hover:underline"
@@ -301,11 +328,11 @@ export default function FoodDetailsPage() {
                 <span className="font-medium text-foreground">Select Size</span>
                 <div className="flex gap-2 items-center text-sm text-muted-foreground">
                   <Clock className="h-4 w-4" />
-                  <span>Posted: {new Date(food.postedAt).toLocaleString()}</span>
+                  <span>Posted: {new Date(foodItem?.postedAt).toLocaleString()}</span>
                 </div>
                 <div className="flex gap-2 items-center text-sm text-muted-foreground">
                   <Users className="h-4 w-4" />
-                  <span>People Count: {food.peopleCount}</span>
+                  <span>People Count: {foodItem?.peopleCount ?? "N/A"}</span>
                 </div>
               </div>
             </div>
@@ -313,7 +340,7 @@ export default function FoodDetailsPage() {
             {/* Claimed & Poster Info */}
 
             <div className="flex  flex-col md:flex-row gap-4   md:gap-12 bg-muted/10 p-4 rounded-xl border mt-6">
-              {food.status === 'claimed' && (
+              {foodItem?.status === 'claimed' && (
                 <div className="flex flex-col gap-1">
                   <span className="text-sm font-semibold text-muted-foreground">Claimed By</span>
                   <div className="flex items-center gap-2 text-sm text-foreground">
@@ -340,24 +367,24 @@ export default function FoodDetailsPage() {
                 size="lg"
                 variant="outline"
                 className={`flex-1 flex items-center justify-center gap-2 rounded-lg border transition-all duration-200
-        ${food.status === 'active'
+        ${foodItem?.status === 'active'
                     ? 'bg-[#b6985a] text-white hover:brightness-110 hover:shadow-md'
                     : 'bg-zinc-800 text-gray-400 cursor-not-allowed'
                   }`}
                 onClick={handleClaimFood}
-                disabled={food.status !== 'active'}
+                disabled={foodItem?.status !== 'active'}
               >
                 <ShieldCheck className="h-4 w-4" />
-                {food.status === 'active'
+                {foodItem?.status === 'active'
                   ? 'Claim Now'
-                  : food.status.charAt(0).toUpperCase() + food.status.slice(1)}
+                  : foodItem?.status.charAt(0).toUpperCase() + foodItem?.status.slice(1)}
               </Button>
 
               <Button
                 size="lg"
                 variant="outline"
                 className="flex-1 flex items-center justify-center gap-2 rounded-lg border transition-all duration-200 hover:bg-green-50 dark:hover:bg-green-900/30"
-                onClick={() => window.open(`https://wa.me/${food.contact}`, '_blank')}
+                onClick={() => window.open(`https://wa.me/${foodItem?.contact}`, '_blank')}
               >
                 <FaWhatsapp className="h-4 w-4 text-green-600 dark:text-green-400" />
                 Chat with Seller
@@ -400,10 +427,10 @@ export default function FoodDetailsPage() {
 
                     {/* Route Map */}
                     <RouteMap
-                      senderLat={food.lat}
-                      senderLng={food.lng}
-                      claimerLat={food.claimerLat}
-                      claimerLng={food.claimerLng}
+                      senderLat={foodItem.lat}
+                      senderLng={foodItem.lng}
+                      claimerLat={foodItem.claimerLat}
+                      claimerLng={foodItem.claimerLng}
                     />
 
                     <button
@@ -431,7 +458,7 @@ export default function FoodDetailsPage() {
 
       <ToastContainer position="top-center" />
 
-      <Footer />
+  
     </div>
   );
 }
