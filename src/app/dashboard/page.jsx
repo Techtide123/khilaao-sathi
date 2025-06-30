@@ -14,7 +14,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import ProtectedRoute from '@/components/ProtectedRoute';
+// import ProtectedRoute from '@/components/ProtectedRoute';
 const MapClient = dynamic(() => import('@/components/dashhome/Map'), {
     ssr: false,
 });
@@ -151,71 +151,71 @@ export default function DashboardPage() {
 
     return (
         <>
-            <ProtectedRoute>
-                {/* ✅ Minimal Welcome Popup */}
-                {openWelcome && (
-                    <Dialog open onOpenChange={() => setOpenWelcome(false)}>
-                        <DialogContent
-                            className="max-w-md backdrop-blur-lg bg-white dark:bg-zinc-900/50 border border-white/10 shadow-2xl rounded-3xl p-8 text-center"
+
+            {/* ✅ Minimal Welcome Popup */}
+            {openWelcome && (
+                <Dialog open onOpenChange={() => setOpenWelcome(false)}>
+                    <DialogContent
+                        className="max-w-md backdrop-blur-lg bg-white dark:bg-zinc-900/50 border border-white/10 shadow-2xl rounded-3xl p-8 text-center"
+                    >
+                        <DialogTitle className="text-3xl font-bold text-[#580fc2] drop-shadow-sm">
+                            🎉 Welcome! <br />  <span className='text-black'>{userData.name}</span>
+                        </DialogTitle>
+
+                        <DialogDescription className="text-zinc-700 dark:text-zinc-300 mt-2 text-base">
+                            We’re thrilled to have you here! Let's serve smiles, share meals, and spread kindness together. 💜
+                        </DialogDescription>
+
+                        <Button
+                            onClick={() => setOpenWelcome(false)}
+                            className="mt-6 bg-[#580fc2] hover:bg-[#6a1ee9] text-white w-full text-lg py-2 rounded-xl shadow-md transition-all"
                         >
-                            <DialogTitle className="text-3xl font-bold text-[#580fc2] drop-shadow-sm">
-                                🎉 Welcome! <br />  <span className='text-black'>{userData.name}</span>
-                            </DialogTitle>
+                            Let’s Go 🚀
+                        </Button>
+                    </DialogContent>
+                </Dialog>
 
-                            <DialogDescription className="text-zinc-700 dark:text-zinc-300 mt-2 text-base">
-                                We’re thrilled to have you here! Let's serve smiles, share meals, and spread kindness together. 💜
-                            </DialogDescription>
-
-                            <Button
-                                onClick={() => setOpenWelcome(false)}
-                                className="mt-6 bg-[#580fc2] hover:bg-[#6a1ee9] text-white w-full text-lg py-2 rounded-xl shadow-md transition-all"
-                            >
-                                Let’s Go 🚀
-                            </Button>
-                        </DialogContent>
-                    </Dialog>
-
-                )}
+            )}
 
 
 
 
-                <div className="min-h-screen flex flex-col justify-between">
+            <div className="min-h-screen flex flex-col justify-between">
 
 
-                    {/* Main Content (Dynamic) */}
-                    <main className="flex-1 ">
-                        {renderTabContent()}
-                    </main>
+                {/* Main Content (Dynamic) */}
+                <main className="flex-1 ">
+                    {renderTabContent()}
+                </main>
 
-                    {/* Mobile Bottom Nav */}
-                    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-md md:hidden z-50">
-                        <div className="flex justify-around py-3 text-sm text-gray-700">
-                            <button onClick={() => setActiveTab('home')} className="flex flex-col items-center">
-                                <FaHome size={20} />
-                                <span className="text-xs">Home</span>
-                            </button>
-                            <button onClick={() => setActiveTab('profile')} className="flex flex-col items-center">
-                                <FaUser size={20} />
-                                <span className="text-xs">Profile</span>
-                            </button>
-                            <button onClick={() => setActiveTab('alerts')} className="flex flex-col items-center">
-                                <FaBell size={20} />
-                                <span className="text-xs">Alerts</span>
-                            </button>
-                            <button onClick={() => setActiveTab('settings')} className="flex flex-col items-center">
-                                <FaCog size={20} />
-                                <span className="text-xs">Settings</span>
-                            </button>
-                        </div>
-                    </nav>
-
-
+                {/* Mobile Bottom Nav */}
+                <nav className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-md md:hidden z-50">
+                    <div className="flex justify-around py-3 text-sm text-gray-700">
+                        <button onClick={() => setActiveTab('home')} className="flex flex-col items-center">
+                            <FaHome size={20} />
+                            <span className="text-xs">Home</span>
+                        </button>
+                        <button onClick={() => setActiveTab('profile')} className="flex flex-col items-center">
+                            <FaUser size={20} />
+                            <span className="text-xs">Profile</span>
+                        </button>
+                        <button onClick={() => setActiveTab('alerts')} className="flex flex-col items-center">
+                            <FaBell size={20} />
+                            <span className="text-xs">Alerts</span>
+                        </button>
+                        <button onClick={() => setActiveTab('settings')} className="flex flex-col items-center">
+                            <FaCog size={20} />
+                            <span className="text-xs">Settings</span>
+                        </button>
+                    </div>
+                </nav>
 
 
-                </div>
-                <ToastContainer position="top-center" />
-            </ProtectedRoute>
+
+
+            </div>
+            <ToastContainer position="top-center" />
+
         </>
     );
 }
