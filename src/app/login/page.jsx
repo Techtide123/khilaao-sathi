@@ -27,6 +27,7 @@ function LoginPage() {
 
   useEffect(() => {
     if (unauthorized) {
+      toast.dismiss(); // ⛔ clear existing toasts
       toast.error("You must be logged in to view this page.");
 
       // Remove query param after showing toast

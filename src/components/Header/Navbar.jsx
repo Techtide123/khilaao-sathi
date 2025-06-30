@@ -175,10 +175,22 @@ export default function Component() {
 
     // Log out function
     const handleLogout = async () => {
-        await logout();
-        toast.success("Logged out successfully!");
-        router.push('/login');
+        try {
+            await logout(); // Firebase signOut
+            toast.success("Logged out successfully!");
+
+            // Navigate first, then reload after a short delay
+            router.push('/login');
+
+            setTimeout(() => {
+                window.location.reload(); // Hard refresh
+            }, 500); // Enough time for router.push to complete
+        } catch (error) {
+            toast.error("Logout failed. Please try again.");
+        }
     };
+
+
     // Log out function
 
 
@@ -211,7 +223,7 @@ export default function Component() {
 
 
     return (
-        
+
         <header
             className={`fixed z-50 transition-all duration-500 border border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-lg rounded-xl
         ${scrolled ? "top-[20px]" : "top-0.5"}
@@ -251,7 +263,7 @@ export default function Component() {
                         <DropdownMenuTrigger asChild>
                             <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                                 <Avatar className="h-8 w-8">
-                                    <AvatarImage src={myUser ?.profileImage || "/placeholder.jpg"} alt="User"   className="h-8 w-8 rounded-full object-contain" />
+                                    <AvatarImage src={myUser?.profileImage || "/placeholder.jpg"} alt="User" className="h-8 w-8 rounded-full object-contain" />
                                     <AvatarFallback>
                                         <User className="h-4 w-4" />
                                     </AvatarFallback>
