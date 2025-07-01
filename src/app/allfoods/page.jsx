@@ -1,16 +1,15 @@
 'use client';
-import React from 'react'
+import React from 'react';
 import { useEffect, useState } from 'react';
-import usefoodStore from '@/store/foodStore'
+import usefoodStore from '@/store/foodStore';
 import { useRouter } from 'next/navigation';
 import { Button } from "@/components/ui/button";
 import { Heart, Star, ShoppingCart, User } from "lucide-react";
 import Image from "next/image";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import FullScreenLoader from '@/components/ui/FullScreenLoader';
-
 import ProtectedRoute from '@/components/ProtectedRoute';
 
 
@@ -20,15 +19,9 @@ const Allfoods = () => {
     const router = useRouter()
     const [filter, setFilter] = useState("all");
 
-
     useEffect(() => {
         fetchData()
     }, [])
-
-
-
-
-
 
     const filteredData = data ? data.filter((food) => {
         if (filter === "all") return true;
@@ -38,10 +31,8 @@ const Allfoods = () => {
 
     if (isLoading) return <FullScreenLoader />
 
-
     return (
         <>
-
             <ProtectedRoute>
                 <div className='flex justify-center'>
                     <ToggleGroup
@@ -67,7 +58,6 @@ const Allfoods = () => {
                     </ToggleGroup>
 
                 </div>
-
                 <div className="max-w-6xl mx-auto px-4 py-10 bg-background text-foreground">
                     <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                         {filteredData.map((food) => (

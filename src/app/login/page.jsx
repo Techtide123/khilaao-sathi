@@ -28,14 +28,10 @@ function LoginPage() {
   useEffect(() => {
     if (unauthorized) {
       toast.dismiss(); // ⛔ clear existing toasts
-      toast.error("You must be logged in to view this page.");
+      toast.error("Oops! Please log in first.");
 
       // Remove query param after showing toast
-      const timeout = setTimeout(() => {
-        router.replace("/login"); // ✅ replaces the URL without reloading
-      }, 1000); // give it time to show toast
-
-      return () => clearTimeout(timeout);
+      router.replace("/login"); // ✅ replaces the URL without reloading
     }
   }, [unauthorized, router]);
 
