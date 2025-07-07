@@ -1,3 +1,4 @@
+'use client';
 import { Geist, Geist_Mono } from "next/font/google";
 import { AuthProvider } from '@/lib/authContext';
 import Script from "next/script";
@@ -7,6 +8,8 @@ import { Footer } from "@/components/Footer/Footer";
 // app/layout.js or app/root-layout.js
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { usePathname } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -18,7 +21,7 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata = {
+const metadata = {
   title: "Khilaao Sathi | Share Food, Spread Kindness",
   description:
     "Donate your extra food with Khilaao Sathi and help those in need. Post food, find available meals nearby, and fight food waste together.",
@@ -29,9 +32,25 @@ export const metadata = {
 
 
 export default function RootLayout({ children }) {
+
+
+  const pathname = usePathname();
+  const [showLayout, setShowLayout] = useState(true);
+
+  useEffect(() => {
+    // Hide layout for specific pages like '/login', '/pannel'
+    const hiddenRoutes = ['/login', '/pannel', '/signup', '/']; // add more paths if needed
+    setShowLayout(!hiddenRoutes.includes(pathname));
+  }, [pathname]);
+
   return (
     <html lang="en">
       <head>
+        <Script
+          src="https://checkout.razorpay.com/v1/checkout.js"
+          strategy="afterInteractive"
+        />
+
         {/* OneSignal SDK */}
         <Script src="https://cdn.onesignal.com/sdks/OneSignalSDK.js" async />
         <Script id="onesignal-init" strategy="afterInteractive">
@@ -53,9 +72,9 @@ export default function RootLayout({ children }) {
       >
 
         <AuthProvider>
-          <Navbar />
+          {showLayout && <Navbar />}
           {children}
-          <Footer />
+          {showLayout && <Footer />}
         </AuthProvider>
       </body>
     </html>

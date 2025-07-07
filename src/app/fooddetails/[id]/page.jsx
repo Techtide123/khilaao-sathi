@@ -4,8 +4,6 @@ import dynamic from 'next/dynamic';
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { FaWhatsapp, FaMapMarkerAlt } from 'react-icons/fa';
-import { MdAccessTime } from 'react-icons/md';
-import { PiCheckCircleBold } from 'react-icons/pi';
 
 import { getAuth } from "firebase/auth";
 import { ToastContainer, toast } from 'react-toastify';
@@ -25,7 +23,17 @@ import { Button } from '@/components/ui/button';
 import { Star, Truck, ShieldCheck, Heart, Landmark, UserCheck, User, Clock, Users, X, LoaderIcon } from "lucide-react";
 import FullScreenLoader from '@/components/ui/FullScreenLoader'
 import usefoodStore from '@/store/foodStore'
-
+import {
+  AlertDialog,
+  AlertDialogTrigger,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from "@/components/ui/alert-dialog";
 
 export default function FoodDetailsPage() {
 
@@ -36,14 +44,22 @@ export default function FoodDetailsPage() {
   const [claimerName, setClaimerName] = useState("");
   const [posterName, setPosterName] = useState("");
 
+
+
   const [foodItem, setFoodItem] = useState(null)
   const { data, isLoading, fetchData } = usefoodStore();
 
+
+  const [user, setUser] = useState(null);
 
 
 
 
   // Fetchin the data from the Zustant store ##FOODDATA##
+  useEffect(() => {
+    const auth = getAuth();
+    setUser(auth.currentUser);
+  }, []);
 
   // Fetch data if not already loaded
   useEffect(() => {
@@ -63,10 +79,7 @@ export default function FoodDetailsPage() {
   // Fetchin the data from the Zustant store ##FOODDATA##
 
 
-
-
-
-
+  // console.log("🚀 ~ file: page.jsx:39 ~ FoodDetailsPage ~ foodItem:", foodItem)
 
   // useEffect(() => {
   //   async function fetchFood() {
@@ -134,7 +147,7 @@ export default function FoodDetailsPage() {
         try {
           const res = await fetch(`/api/cuserinfo/${foodItem.uid}`);
           const data = await res.json();
-          console.log("Poster data:", data.user.name);
+          // console.log("Poster info =============================================:", data.user);
 
           if (res.ok) {
             setPosterName(data.user.name || "Anonymous");
@@ -186,8 +199,7 @@ export default function FoodDetailsPage() {
     }
 
     if (foodItem.status === 'active') {
-      const confirmClaim = window.confirm("Are you sure you want to claim this food?");
-      if (!confirmClaim) return;
+
 
       // ✅ Get current location
       navigator.geolocation.getCurrentPosition(async (position) => {
@@ -240,12 +252,70 @@ export default function FoodDetailsPage() {
 
 
 
+  // Paynow btn function
+  const handlePayment = async (price) => {
+    const auth = getAuth();
+    const user = auth.currentUser;
+
+    if (!user) {
+      toast.error("You must be logged in to make a payment.");
+      return;
+    }
+    if (user.uid === foodItem.uid) {
+      toast.warning("Oops! You can't pay for your own post.");
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/razorpay', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ amount: price }),
+      });
+
+      const order = await res.json();
+
+      const options = {
+        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+        amount: order.amount,
+        currency: order.currency,
+        order_id: order.id,
+        name: "Khiallo Satthi",
+        description: "Food Donation Payment",
+        // ✅ Only called if payment is successful
+        handler: async (response) => {
+          toast.success("✅ Payment successful!");
+
+          // ✅ Call claim after payment
+          await handleClaimFood();
+        },
+
+        prefill: {
+          name: posterName.displayName,
+          email: posterName.email,
+          contact: posterName.phone, // optional
+        },
+        theme: { color: "#b6985a" },
+      };
+
+      const rzp = new window.Razorpay(options);
+      rzp.open();
+    } catch (err) {
+      toast.error("Something went wrong during payment.");
+      console.error(err);
+    }
+  };
+
+
+
+
+
   return (
     <div className="flex flex-col min-h-screen 
   bg-gradient-to-b from-gray-100 to-gray-200 
   dark:from-zinc-900 dark:to-zinc-800"
     >
-     
+
       {/* new Ui */}
 
       <div className="w-full max-w-5xl mx-auto p-6 mt-26 mb-6 bg-white dark:bg-zinc-900 rounded-lg shadow-md text-foreground">
@@ -285,16 +355,38 @@ export default function FoodDetailsPage() {
           {/* Product Info */}
           <div className="flex flex-col">
             {/* Status Tag */}
-            <div className="flex items-center gap-4 mb-4">
+            <div className="flex items-center gap-4 mb-4 justify-between">
               <span
                 className={`px-3 py-1 rounded-full text-sm font-medium
-        ${foodItem?.status === 'active'
+               ${foodItem?.status === 'active'
                     ? 'bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400'
                     : 'bg-red-100 text-red-600 dark:bg-red-900/20 dark:text-red-400'
                   }`}
               >
                 {foodItem?.status.charAt(0).toUpperCase() + foodItem?.status.slice(1)}
               </span>
+              <span
+                className="px-3 py-1 rounded-full text-sm font-medium cursor-pointer 
+             bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400 
+             flex items-center gap-1 w-fit transition-all hover:brightness-105"
+                onClick={() => window.open(`https://wa.me/${foodItem?.contact}`, '_blank')}
+              >
+                <FaWhatsapp className="h-4 w-4" />
+                Chat
+              </span>
+
+
+              <span
+                className="inline-block px-2 py-1 rounded-full text-sm font-semibold
+             bg-blue-50 text-blue-700
+             dark:bg-blue-900/30 dark:text-blue-300
+             border border-blue-200 dark:border-blue-800
+             shadow-md backdrop-blur-sm"
+              >
+                ₹{foodItem?.price}
+              </span>
+
+
             </div>
 
             {/* Title */}
@@ -325,7 +417,7 @@ export default function FoodDetailsPage() {
             {/* Time and People Info */}
             <div className="space-y-4">
               <div className="flex flex-col gap-2">
-                <span className="font-medium text-foreground">Select Size</span>
+                <span className="font-medium text-foreground">Food Details</span>
                 <div className="flex gap-2 items-center text-sm text-muted-foreground">
                   <Clock className="h-4 w-4" />
                   <span>Posted: {new Date(foodItem?.postedAt).toLocaleString()}</span>
@@ -363,35 +455,61 @@ export default function FoodDetailsPage() {
 
             {/* Action Buttons */}
             <div className="flex gap-4 mt-8">
-              <Button
-                size="lg"
-                variant="outline"
-                className={`flex-1 flex items-center justify-center gap-2 rounded-lg border transition-all duration-200
-        ${foodItem?.status === 'active'
-                    ? 'bg-[#b6985a] text-white hover:brightness-110 hover:shadow-md'
-                    : 'bg-zinc-800 text-gray-400 cursor-not-allowed'
-                  }`}
-                onClick={handleClaimFood}
-                disabled={foodItem?.status !== 'active'}
-              >
-                <ShieldCheck className="h-4 w-4" />
-                {foodItem?.status === 'active'
-                  ? 'Claim Now'
-                  : foodItem?.status.charAt(0).toUpperCase() + foodItem?.status.slice(1)}
-              </Button>
+              {/* CLAIM NOW Button */}
+              {foodItem?.status === 'active' ? (
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      size="lg"
+                      variant="outline"
+                      className="inline-flex items-center justify-center gap-2 
+          px-6 py-3 rounded-xl 
+          bg-gradient-to-r from-indigo-600 to-violet-600 
+          text-white text-base font-semibold 
+          hover:from-indigo-700 hover:to-violet-700 
+          dark:from-indigo-400 dark:to-violet-500 
+          shadow-md hover:shadow-lg 
+          transition-all duration-200 ease-in-out"
+                    >
+                      <span className="text-lg">💳</span>
+                      Pay ₹{foodItem?.price}
+                    </Button>
+                  </AlertDialogTrigger>
 
-              <Button
-                size="lg"
-                variant="outline"
-                className="flex-1 flex items-center justify-center gap-2 rounded-lg border transition-all duration-200 hover:bg-green-50 dark:hover:bg-green-900/30"
-                onClick={() => window.open(`https://wa.me/${foodItem?.contact}`, '_blank')}
-              >
-                <FaWhatsapp className="h-4 w-4 text-green-600 dark:text-green-400" />
-                Chat with Seller
-              </Button>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Proceed to Payment?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Are you sure you want to pay ₹{foodItem?.price}? This food will be marked as claimed once paid.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={() => handlePayment(foodItem?.price)}
+                      >
+                        Yes, Pay Now
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              ) : (
+                <Button
+                  size="lg"
+                  variant="outline"
+                  disabled
+                  className="flex items-center justify-center gap-2 rounded-lg 
+      bg-red-100 text-red-700 
+      dark:bg-red-900 dark:text-red-300 
+      cursor-not-allowed shadow-md transition-all font-semibold"
+                >
+                  {foodItem?.status === 'claimed' && '🚫 Already Claimed'}
+                  {foodItem?.status === 'expired' && '⏳ Expired'}
+                  {foodItem?.status !== 'claimed' && foodItem?.status !== 'expired' && '❌ Not Available'}
+                </Button>
+              )}
+
             </div>
-
-
 
             {/* Show Popup if current user claimed */}
             {showClaimedPopup && (
@@ -444,11 +562,7 @@ export default function FoodDetailsPage() {
               </div>
             )}
 
-
           </div>
-
-
-
 
         </div>
       </div>
@@ -458,7 +572,7 @@ export default function FoodDetailsPage() {
 
       <ToastContainer position="top-center" />
 
-  
+
     </div>
   );
 }

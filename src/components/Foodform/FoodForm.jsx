@@ -280,6 +280,7 @@ export default function FoodPostForm() {
     lat: 20.2961,
     lng: 85.8245,
     images: [],
+    price: "",
   });
 
   const [previews, setPreviews] = useState([]);
@@ -356,6 +357,7 @@ export default function FoodPostForm() {
     formData.append("lat", form.lat);
     formData.append("lng", form.lng);
     formData.append("uid", user?.uid);
+    formData.append("price", form.price);
 
     form.images.forEach((file) => formData.append("images", file));
 
@@ -369,10 +371,11 @@ export default function FoodPostForm() {
 
       if (res.ok) {
         toast.success("✅ Food post submitted!");
-        setForm({ title: "", description: "", contact: "", peopleCount: "", lat: 20.2961, lng: 85.8245, images: [] });
+        setForm({ title: "", description: "", contact: "", peopleCount: "", lat: 20.2961, lng: 85.8245, images: [], price: "" });
+        console.log("✅ Food post submitted!" , formData);
         setPreviews([]);
         setStep(1);
-        router.push("/allfoods");
+        // router.push("/allfoods");
       } else {
         toast.error("❌ Failed to submit.");
       }
@@ -388,152 +391,174 @@ export default function FoodPostForm() {
 
   return (
     <>
-    <ProtectedRoute>
-      {isLoading && <FullScreenLoader />}
-      <section className=" py-32 md:py-42  px-4 md:px-30">
-        <div className="container">
-          <div className="grid items-center gap-8 lg:grid-cols-2">
+      <ProtectedRoute>
+        {isLoading && <FullScreenLoader />}
+        <section className=" py-32 md:py-42  px-4 md:px-30">
+          <div className="container">
+            <div className="grid items-center gap-8 lg:grid-cols-2">
 
-            {/* Left Side Content */}
-            <div className="flex flex-col items-center text-center lg:items-start lg:text-left">
-              <Badge variant="outline">
-                ♻️ Share to Care
-                <ArrowUpRight className="ml-2 size-4" />
-              </Badge>
+              {/* Left Side Content */}
+              <div className="flex flex-col items-center text-center lg:items-start lg:text-left">
+                <Badge variant="outline">
+                  ♻️ Share to Care
+                  <ArrowUpRight className="ml-2 size-4" />
+                </Badge>
 
-              <h1 className="my-6 text-pretty text-4xl font-bold lg:text-6xl">
-                Donate Extra Food & Fight Waste
-              </h1>
+                <h1 className="my-6 text-pretty text-4xl font-bold lg:text-6xl">
+                  Donate Extra Food & Fight Waste
+                </h1>
 
-              <p className="text-muted-foreground mb-8 max-w-xl lg:text-xl">
-                Got extra food? Don’t throw it away. Post your food here and help someone in need. Together, we can reduce waste and spread kindness.            </p>
+                <p className="text-muted-foreground mb-8 max-w-xl lg:text-xl">
+                  Got extra food? Don’t throw it away. Post your food here and help someone in need. Together, we can reduce waste and spread kindness.            </p>
 
-              <div className="flex w-full flex-col justify-center gap-2 sm:flex-row lg:justify-start">
-                <Button asChild className="w-full sm:w-auto">
-                  <a href="/dashboard#foodonmap">Find Food Via Map</a>
-                </Button>
-                <Button asChild variant="outline" className="w-full sm:w-auto">
-                  <a href="/dashboard#fooditems">
-                    🔍 View Available Food
-                    <ArrowRight className="size-4 ml-2" />
-                  </a>
-                </Button>
+                <div className="flex w-full flex-col justify-center gap-2 sm:flex-row lg:justify-start">
+                  <Button asChild className="w-full sm:w-auto">
+                    <a href="/dashboard#foodonmap">Find Food Via Map</a>
+                  </Button>
+                  <Button asChild variant="outline" className="w-full sm:w-auto">
+                    <a href="/dashboard#fooditems">
+                      🔍 View Available Food
+                      <ArrowRight className="size-4 ml-2" />
+                    </a>
+                  </Button>
+                </div>
               </div>
-            </div>
 
-            {/* Right Side Image */}
-            <div className=" md:w-xl mx-auto dark:bg-zinc-900 p-6 rounded-2xl shadow-lg space-y-6 mt-12 border border-zinc-200 dark:border-zinc-700">
-              <h2 className="text-3xl font-semibold text-center">
-                Share Food, Spread Hope
-              </h2>
+              {/* Right Side Image */}
+              <div className=" md:w-xl mx-auto dark:bg-zinc-900 p-6 rounded-2xl shadow-lg space-y-6 mt-12 border border-zinc-200 dark:border-zinc-700">
+                <h2 className="text-3xl font-semibold text-center">
+                  Share Food, Spread Hope
+                </h2>
 
-              <div className="flex flex-col gap-6">
-                {/* Step 1: Food Info */}
-                {step === 1 && (
-                  <div className="space-y-4">
-                    <Input
-                      type="text"
-                      placeholder="E.g., 2 plates of Chowmein"
-                      value={form.title}
-                      onChange={(e) => setForm({ ...form, title: e.target.value })}
-                    />
-                    <Textarea
-                      placeholder="Describe the food and context..."
-                      value={form.description}
-                      onChange={(e) => setForm({ ...form, description: e.target.value })}
-                    />
-                    <Input
-                      type="text"
-                      placeholder="WhatsApp Number"
-                      value={form.contact}
-                      onChange={(e) => setForm({ ...form, contact: e.target.value })}
-                    />
-                    <Input
-                      type="number"
-                      placeholder="For how many people?"
-                      value={form.peopleCount}
-                      onChange={(e) => setForm({ ...form, peopleCount: e.target.value })}
-                    />
-                    <div className="flex justify-end">
-                      <Button onClick={() => setStep(2)}>Next <ArrowRight className="size-3" /></Button>
-
-                    </div>
-                  </div>
-                )}
-
-                {/* Step 2: Map + Images */}
-                {step === 2 && (
-                  <div className="space-y-6">
-                    {/* Location Toggle */}
-                    <div className="flex gap-3">
-                      <Button
-                        variant={locationMode === "current" ? "default" : "outline"}
-                        onClick={() => setLocationMode("current")}
-                      >
-                        📍 Current Location
-                      </Button>
-                      <Button
-                        variant={locationMode === "manual" ? "default" : "outline"}
-                        onClick={() => setLocationMode("manual")}
-                      >
-                        🗺️ Pick on Map
-                      </Button>
-                    </div>
-
-                    {/* Map Display */}
-                    <div className="h-[200px] overflow-hidden rounded-lg border shadow-inner">
-                      <MapContainer
-                        center={[form.lat, form.lng]}
-                        zoom={15}
-                        className="h-full w-full z-0"
-                        key={`${form.lat}-${form.lng}`}
-                      >
-                        <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-                        <LocationPicker />
-                      </MapContainer>
-                    </div>
-
-                    {/* Image Upload */}
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium dark:bg-zinc-900  dark:border-zinc-700">
-                        Upload up to 3 images
-                      </label>
+                <div className="flex flex-col gap-6">
+                  {/* Step 1: Food Info */}
+                  {step === 1 && (
+                    <div className="space-y-4">
                       <Input
-                        type="file"
-                        accept="image/*"
-                        multiple
-                        onChange={handleImageChange}
-                        disabled={form.images.length >= 3}
+                        type="text"
+                        placeholder="E.g., 2 plates of Chowmein"
+                        value={form.title}
+                        onChange={(e) => setForm({ ...form, title: e.target.value })}
+                      />
+                      <Textarea
+                        placeholder="Describe the food and context..."
+                        value={form.description}
+                        onChange={(e) => setForm({ ...form, description: e.target.value })}
+                      />
+                      <Input
+                        type="text"
+                        placeholder="WhatsApp Number"
+                        value={form.contact}
+                        onChange={(e) => setForm({ ...form, contact: e.target.value })}
+                      />
+                      <Input
+                        type="number"
+                        placeholder="For how many people?"
+                        value={form.peopleCount}
+                        onChange={(e) => setForm({ ...form, peopleCount: e.target.value })}
+                      />
+                      <div className="flex justify-end">
+                        <Button onClick={() => setStep(2)}>Next <ArrowRight className="size-3" /></Button>
+
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Step 2: Map + Images */}
+                  {step === 2 && (
+                    <div className="space-y-6">
+                      {/* Location Toggle */}
+                      <div className="flex gap-3">
+                        <Button
+                          variant={locationMode === "current" ? "default" : "outline"}
+                          onClick={() => setLocationMode("current")}
+                        >
+                          📍 Current Location
+                        </Button>
+                        <Button
+                          variant={locationMode === "manual" ? "default" : "outline"}
+                          onClick={() => setLocationMode("manual")}
+                        >
+                          🗺️ Pick on Map
+                        </Button>
+                      </div>
+
+                      {/* Map Display */}
+                      <div className="h-[200px] overflow-hidden rounded-lg border shadow-inner">
+                        <MapContainer
+                          center={[form.lat, form.lng]}
+                          zoom={15}
+                          className="h-full w-full z-0"
+                          key={`${form.lat}-${form.lng}`}
+                        >
+                          <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                          <LocationPicker />
+                        </MapContainer>
+                      </div>
+
+                      {/* Image Upload */}
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium dark:bg-zinc-900  dark:border-zinc-700">
+                          Upload up to 3 images
+                        </label>
+                        <Input
+                          type="file"
+                          accept="image/*"
+                          multiple
+                          onChange={handleImageChange}
+                          disabled={form.images.length >= 3}
+                        />
+
+                        {previews.length > 0 && (
+                          <div className="grid grid-cols-3 gap-2">
+                            {previews.map((src, idx) => (
+                              <div
+                                key={idx}
+                                className="relative group rounded-lg overflow-hidden border dark:border-zinc-700 shadow"
+                              >
+                                <img
+                                  src={src}
+                                  alt={`Preview ${idx + 1}`}
+                                  className="object-cover h-24 w-full"
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() => removeImage(idx)}
+                                  className="absolute top-1 right-1 bg-black/70 hover:bg-red-600 text-white text-xs rounded-full p-1 transition"
+                                >
+                                  ✖
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Navigation Buttons */}
+                      <div className="flex justify-between pt-4">
+                        <Button variant="outline" onClick={() => setStep(1)}>
+                          <ArrowLeft className="ml-2 size-4" />
+                          Back
+                        </Button>
+                        <Button onClick={() => setStep(3)}>Next <ArrowRight className="size-3" /></Button>
+
+                      </div>
+                    </div>
+                  )}
+
+
+                  {/* Success */}
+                  {step === 3 && (
+                    <div className="space-y-4">
+                      {/* <h2 className="text-3xl font-semibold">Thanks for sharing!</h2> */}
+                      <Input
+                        type="number"
+                        placeholder="Price"
+                        value={form.price}
+                        onChange={(e) => setForm({ ...form, price: e.target.value })}
                       />
 
-                      {previews.length > 0 && (
-                        <div className="grid grid-cols-3 gap-2">
-                          {previews.map((src, idx) => (
-                            <div
-                              key={idx}
-                              className="relative group rounded-lg overflow-hidden border dark:border-zinc-700 shadow"
-                            >
-                              <img
-                                src={src}
-                                alt={`Preview ${idx + 1}`}
-                                className="object-cover h-24 w-full"
-                              />
-                              <button
-                                type="button"
-                                onClick={() => removeImage(idx)}
-                                className="absolute top-1 right-1 bg-black/70 hover:bg-red-600 text-white text-xs rounded-full p-1 transition"
-                              >
-                                ✖
-                              </button>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Navigation Buttons */}
-                    <div className="flex justify-between pt-4">
-                      <Button variant="outline" onClick={() => setStep(1)}>
+                      <Button variant="outline" onClick={() => setStep(2)}>
                         <ArrowLeft className="ml-2 size-4" />
                         Back
                       </Button>
@@ -544,21 +569,19 @@ export default function FoodPostForm() {
                           "Submit"
                         )}
                       </Button>
-
                     </div>
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
+
+
+
             </div>
-
-
-
           </div>
-        </div>
-        
-      </section>
-       
-       </ProtectedRoute>
+
+        </section>
+
+      </ProtectedRoute>
     </>
   );
 };

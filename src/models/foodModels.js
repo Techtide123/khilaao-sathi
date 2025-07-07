@@ -26,7 +26,8 @@ const FoodSchema = new mongoose.Schema({
   images: {
     type: [String], // 🔥 Array of Cloudinary image URLs
     required: true,
-  }
+  },
+  price: { type: Number, required: true }
 });
 
 export default mongoose.models.Food || mongoose.model('Food', FoodSchema);

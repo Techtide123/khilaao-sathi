@@ -61,6 +61,7 @@ export default function SplashScreen() {
 
           </div>
 
+
         </div>
       </div>
 

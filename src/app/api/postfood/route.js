@@ -46,6 +46,7 @@ export async function POST(req) {
       lng: Number(fields.lng),
       uid: fields.uid, // 👤 User who posted
       images: uploadedImages, // 🖼️ Uploaded image URLs
+      price: Number(fields.price)
     };
 
 
@@ -55,6 +56,7 @@ export async function POST(req) {
  // 📝 8. Save to MongoDB using Mongoose
     const newFood = new Food(foodData);
     await newFood.save();
+    console.log("✅ Food post created:", newFood);
 
     // ✅ Send Push Notification via OneSignal
     const onesignalRes = await fetch("https://onesignal.com/api/v1/notifications", {
@@ -67,7 +69,7 @@ export async function POST(req) {
         app_id: ONE_SIGNAL_APP_ID,
         included_segments: ["All"], // Sends to all subscribed users
         headings: { en: "🍱 New Food Posted!" },
-        contents: { en: `${foodData.title} is now available. Come and claim it!` },
+        contents: { en: `${foodData.title} is now available. Come and claim it in ${foodData.price}!` },
         url: "https://khilaao-sathi.vercel.app" // Replace with your actual frontend URL
       }),
     });
