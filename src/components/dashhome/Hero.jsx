@@ -3,6 +3,7 @@ import { Typewriter } from 'react-simple-typewriter';
 import { cn } from "@/lib/utils";
 
 import { Button, buttonVariants } from "@/components/ui/button";
+import { Globe } from "lucide-react";
 
 export default function Hero() {
     return (
@@ -58,62 +59,74 @@ export default function Hero() {
                         </div>
                         <div className="mt-20 flex flex-col items-center gap-5">
                             <p className="font-medium text-muted-foreground lg:text-left">
-                                Built with open-source technologies
+                                Build Your Projects with Me
                             </p>
                             <div className="flex flex-wrap items-center justify-center gap-4">
+                                {/* GitHub */}
                                 <a
-                                    href="#"
+                                    href="https://github.com/Shitansu7205"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
                                     className={cn(
                                         buttonVariants({ variant: "outline" }),
-                                        "group flex aspect-square h-12 items-center justify-center p-0",
+                                        "group flex aspect-square h-12 items-center justify-center p-0"
                                     )}
                                 >
                                     <img
-                                        src="https://deifkwefumgah.cloudfront.net/shadcnblocks/block/logos/shadcn-ui-icon.svg"
-                                        alt="shadcn/ui logo"
-                                        className="h-6 saturate-0 transition-all group-hover:saturate-100"
-                                    />
-                                </a>
-                                <a
-                                    href="#"
-                                    className={cn(
-                                        buttonVariants({ variant: "outline" }),
-                                        "group flex aspect-square h-12 items-center justify-center p-0",
-                                    )}
-                                >
-                                    <img
-                                        src="https://deifkwefumgah.cloudfront.net/shadcnblocks/block/logos/typescript-icon.svg"
-                                        alt="TypeScript logo"
+                                        src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg"
+                                        alt="GitHub"
                                         className="h-6 saturate-0 transition-all group-hover:saturate-100"
                                     />
                                 </a>
 
+                                {/* LinkedIn */}
                                 <a
-                                    href="#"
+                                    href="https://www.linkedin.com/in/shitansu-kumar-gochhayat-91b7a5241/"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
                                     className={cn(
                                         buttonVariants({ variant: "outline" }),
-                                        "group flex aspect-square h-12 items-center justify-center p-0",
+                                        "group flex aspect-square h-12 items-center justify-center p-0"
                                     )}
                                 >
                                     <img
-                                        src="https://deifkwefumgah.cloudfront.net/shadcnblocks/block/logos/react-icon.svg"
-                                        alt="React logo"
+                                        src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linkedin/linkedin-original.svg"
+                                        alt="LinkedIn"
                                         className="h-6 saturate-0 transition-all group-hover:saturate-100"
                                     />
                                 </a>
+
+                                {/* Twitter/X */}
                                 <a
-                                    href="#"
+                                    href="https://x.com/ShitansuG"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
                                     className={cn(
                                         buttonVariants({ variant: "outline" }),
-                                        "group flex aspect-square h-12 items-center justify-center p-0",
+                                        "group flex aspect-square h-12 items-center justify-center p-0"
                                     )}
                                 >
                                     <img
-                                        src="https://deifkwefumgah.cloudfront.net/shadcnblocks/block/logos/tailwind-icon.svg"
-                                        alt="Tailwind CSS logo"
+                                        src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/twitter/twitter-original.svg"
+                                        alt="Twitter"
                                         className="h-6 saturate-0 transition-all group-hover:saturate-100"
                                     />
                                 </a>
+
+                                {/* Gmail (Optional) */}
+                              <a
+  href="https://shitansu-portfolio.netlify.app/"
+  target="_blank"
+  rel="noopener noreferrer"
+  className={cn(
+    buttonVariants({ variant: "outline" }),
+    "group flex aspect-square h-12 items-center justify-center p-0"
+  )}
+>
+ <Globe className="h-6 w-6 text-zinc-600 dark:text-zinc-300 group-hover:text-indigo-600 transition-all" />
+</a>
+
+
                             </div>
                         </div>
                     </div>

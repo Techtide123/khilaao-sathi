@@ -16,7 +16,7 @@ const usefoodStore = create((set, get) => ({
 
         const json = await res.json()
         // console.log("Fecthin the food res..........")
-        console.log(json.foods)
+        // console.log(json.foods)
         set({ data: json.foods, isLoading: false })
     },
 }))

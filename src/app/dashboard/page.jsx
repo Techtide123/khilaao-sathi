@@ -18,6 +18,7 @@ import ProtectedRoute from '@/components/ProtectedRoute';
 const MapClient = dynamic(() => import('@/components/dashhome/Map'), {
     ssr: false,
 });
+import ContactPage from '@/components/contact/page'
 import usefoodStore from '@/store/foodStore';
 
 
@@ -128,7 +129,8 @@ export default function DashboardPage() {
                         <MyPostSlider />
                         {/* <Map /> */}
                         <MapClient posts={posts} />
-
+                        {/* Contact Page */}
+                        <ContactPage />
                         {/* Food List */}
                         {/* <FoodList /> */}
 
@@ -189,7 +191,7 @@ export default function DashboardPage() {
                     </main>
 
                     {/* Mobile Bottom Nav */}
-                    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-md md:hidden z-50">
+                    {/* <nav className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-md md:hidden z-50">
                         <div className="flex justify-around py-3 text-sm text-gray-700">
                             <button onClick={() => setActiveTab('home')} className="flex flex-col items-center">
                                 <FaHome size={20} />
@@ -208,7 +210,7 @@ export default function DashboardPage() {
                                 <span className="text-xs">Settings</span>
                             </button>
                         </div>
-                    </nav>
+                    </nav> */}
 
 
 

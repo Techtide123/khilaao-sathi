@@ -125,10 +125,10 @@ export default function Component() {
 
     const navigationItems = [
         { name: "Home", href: "/dashboard" },
-        { name: "About", href: "/about" },
+        { name: "About", href: "/dashboard#foodonmap" },
         { name: "Post Food", href: "/foodform" },
         { name: "Find Food", href: "/allfoods" },
-        { name: "Contact", href: "/contact" },
+        { name: "Contact", href: "/dashboard#contactPage" },
     ];
 
 
@@ -281,7 +281,7 @@ export default function Component() {
                                         </div>
                                     </DropdownMenuLabel>
                                     <DropdownMenuSeparator />
-                                    <DropdownMenuItem onClick={() => router.push('/profile')}>
+                                    <DropdownMenuItem onClick={() => router.push('/pannel')}>
                                         <User className="mr-2 h-4 w-4" />
                                         <span>Profile</span>
                                     </DropdownMenuItem>

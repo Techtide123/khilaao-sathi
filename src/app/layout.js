@@ -39,7 +39,7 @@ export default function RootLayout({ children }) {
 
   useEffect(() => {
     // Hide layout for specific pages like '/login', '/pannel'
-    const hiddenRoutes = ['/login', '/pannel', '/signup', '/']; // add more paths if needed
+    const hiddenRoutes = ['/login', '/pannel', '/signup', '/' , '/pan']; // add more paths if needed
     setShowLayout(!hiddenRoutes.includes(pathname));
   }, [pathname]);
 
